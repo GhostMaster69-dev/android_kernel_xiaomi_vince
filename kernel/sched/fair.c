@@ -2791,16 +2791,6 @@ EXPORT_SYMBOL(sched_set_wake_up_idle);
 
 #ifdef CONFIG_SMP
 /*
- * Precomputed \Sum y^k { 1<=k<=n, where n%32=0). Values are rolled down to
- * lower integers. See Documentation/scheduler/sched-avg.txt how these
- * were generated:
- */
-static const u32 __accumulated_sum_N32[] = {
-	    0, 23371, 35056, 40899, 43820, 45281,
-	46011, 46376, 46559, 46650, 46696, 46719,
-};
-
-/*
  * Approximate:
  *   val * y^n,    where y^32 ~= 0.5 (~1 scheduling period)
  */
@@ -2808,9 +2798,7 @@ static u64 decay_load(u64 val, u64 n)
 {
 	unsigned int local_n;
 
-	if (!n)
-		return val;
-	else if (unlikely(n > LOAD_AVG_PERIOD * 63))
+	if (unlikely(n > LOAD_AVG_PERIOD * 63))
 		return 0;
 
 	/* after bounds checking we can collapse to 32-bit */
@@ -2832,40 +2820,25 @@ static u64 decay_load(u64 val, u64 n)
 	return val;
 }
 
-static u32 __accumulate_sum(u64 periods, u32 period_contrib, u32 remainder)
+static u32 __accumulate_pelt_segments(u64 periods, u32 d1, u32 d3)
 {
-	u32 c1, c2, c3 = remainder; /* y^0 == 1 */
-
-	if (!periods)
-		return remainder - period_contrib;
-
-	if (unlikely(periods >= LOAD_AVG_MAX_N))
-		return LOAD_AVG_MAX;
+	u32 c1, c2, c3 = d3; /* y^0 == 1 */
 
 	/*
 	 * c1 = d1 y^(p+1)
 	 */
-	c1 = decay_load((u64)(1024 - period_contrib), periods);
+	c1 = decay_load((u64)d1, periods);
 
-	periods -= 1;
 	/*
-	 * For updates fully spanning n periods, the contribution to runnable
-	 * average will be:
+	 *             p
+	 * c2 = 1024 \Sum y^n
+	 *            n=1
 	 *
-	 *   c2 = 1024 \Sum y^n
-	 *
-	 * We can compute this reasonably efficiently by combining:
-	 *
-	 *   y^PERIOD = 1/2 with precomputed 1024 \Sum y^n {for: n < PERIOD}
+	 *              inf        inf
+	 *    = 1024 ( \Sum y^n - \Sum y^n - y^0 )
+	 *              n=0        n=p+1
 	 */
-	if (likely(periods <= LOAD_AVG_PERIOD)) {
-		c2 = runnable_avg_yN_sum[periods];
-	} else {
-		c2 = __accumulated_sum_N32[periods/LOAD_AVG_PERIOD];
-		periods %= LOAD_AVG_PERIOD;
-		c2 = decay_load(c2, periods);
-		c2 += runnable_avg_yN_sum[periods];
-	}
+	c2 = LOAD_AVG_MAX - decay_load(LOAD_AVG_MAX, periods) - 1024;
 
 	return c1 + c2 + c3;
 }
@@ -2924,8 +2897,8 @@ accumulate_sum(u64 delta, int cpu, struct sched_avg *sa,
 	       unsigned long weight, int running, struct cfs_rq *cfs_rq)
 {
 	unsigned long scale_freq, scale_cpu;
+	u32 contrib = (u32)delta; /* p == 0 -> delta < 1024 */
 	u64 periods;
-	u32 contrib;
 
 	scale_freq = arch_scale_freq_capacity(NULL, cpu);
 	scale_cpu = arch_scale_cpu_capacity(NULL, cpu);
@@ -2943,13 +2916,14 @@ accumulate_sum(u64 delta, int cpu, struct sched_avg *sa,
 				decay_load(cfs_rq->runnable_load_sum, periods);
 		}
 		sa->util_sum = decay_load((u64)(sa->util_sum), periods);
-	}
 
-	/*
-	 * Step 2
-	 */
-	delta %= 1024;
-	contrib = __accumulate_sum(periods, sa->period_contrib, delta);
+		/*
+		 * Step 2
+		 */
+		delta %= 1024;
+		contrib = __accumulate_pelt_segments(periods,
+				1024 - sa->period_contrib, delta);
+	}
 	sa->period_contrib = delta;
 
 	contrib = cap_scale(contrib, scale_freq);
