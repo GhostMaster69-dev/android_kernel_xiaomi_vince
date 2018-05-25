@@ -754,6 +754,10 @@ noinline int slow_avc_audit(u32 ssid, u32 tsid, u16 tclass,
 	if (!denied)
 		return 0;
 
+	/* Only log permissive=1 messages for SECURITY_SELINUX_DEVELOP */
+	if (denied && !result)
+		return 0;
+
 	if (!a) {
 		a = &stack_data;
 		a->type = LSM_AUDIT_DATA_NONE;
