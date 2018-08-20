@@ -705,7 +705,7 @@ do {									\
 	P(walt_stats.nr_big_tasks);
 #endif
 	SEQ_printf(m, "  .%-30s: %llu\n", "walt_stats.cumulative_runnable_avg",
-			rq->walt_stats.cumulative_runnable_avg);
+			rq->walt_stats.cumulative_runnable_avg_scaled);
 #endif
 #undef P
 #undef PN
