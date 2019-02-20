@@ -1393,7 +1393,7 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 
 	bTouchIsAwake = 1;
 
-	NVT_gesture_func_on = false;
+	NVT_gesture_func_on = true;
 
 	NVT_LOG("end\n");
 
