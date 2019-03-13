@@ -545,55 +545,6 @@ TRACE_EVENT(sched_set_boost,
 #endif
 
 #ifdef CONFIG_SCHED_WALT
-DECLARE_EVENT_CLASS(sched_cpu_load,
-
-	TP_PROTO(struct rq *rq, int idle, u64 irqload, unsigned int power_cost),
-
-	TP_ARGS(rq, idle, irqload, power_cost),
-
-	TP_STRUCT__entry(
-		__field(unsigned int, cpu			)
-		__field(unsigned int, idle			)
-		__field(unsigned int, nr_running		)
-		__field(unsigned int, nr_big_tasks		)
-		__field(unsigned int, load_scale_factor		)
-		__field(unsigned int, capacity			)
-		__field(	 u64, cumulative_runnable_avg	)
-		__field(	 u64, irqload			)
-		__field(unsigned int, max_freq			)
-		__field(unsigned int, power_cost		)
-		__field(	 int, cstate			)
-		__field(	 int, dstate			)
-	),
-
-	TP_fast_assign(
-		__entry->cpu			= rq->cpu;
-		__entry->idle			= idle;
-		__entry->nr_running		= rq->nr_running;
-		__entry->nr_big_tasks		= rq->walt_stats.nr_big_tasks;
-		__entry->load_scale_factor	= cpu_load_scale_factor(rq->cpu);
-		__entry->capacity		= cpu_capacity(rq->cpu);
-		__entry->cumulative_runnable_avg = rq->walt_stats.cumulative_runnable_avg;
-		__entry->irqload		= irqload;
-		__entry->max_freq		= cpu_max_freq(rq->cpu);
-		__entry->power_cost		= power_cost;
-		__entry->cstate			= rq->cstate;
-		__entry->dstate			= rq->cluster->dstate;
-	),
-
-	TP_printk("cpu %u idle %d nr_run %u nr_big %u lsf %u capacity %u cr_avg %llu irqload %llu fmax %u power_cost %u cstate %d dstate %d",
-	__entry->cpu, __entry->idle, __entry->nr_running, __entry->nr_big_tasks,
-	__entry->load_scale_factor, __entry->capacity,
-	__entry->cumulative_runnable_avg, __entry->irqload,
-	__entry->max_freq, __entry->power_cost, __entry->cstate,
-	__entry->dstate)
-);
-
-DEFINE_EVENT(sched_cpu_load, sched_cpu_load_lb,
-	TP_PROTO(struct rq *rq, int idle, u64 irqload, unsigned int power_cost),
-	TP_ARGS(rq, idle, irqload, power_cost)
-);
-
 TRACE_EVENT(sched_load_to_gov,
 
 	TP_PROTO(struct rq *rq, u64 aggr_grp_load, u32 tt_load,
@@ -1415,10 +1366,7 @@ TRACE_EVENT(sched_contrib_scale_f,
 #ifdef CONFIG_SMP
 
 #ifdef CONFIG_SCHED_WALT
-extern unsigned int sysctl_sched_use_walt_cpu_util;
-extern unsigned int sysctl_sched_use_walt_task_util;
 extern unsigned int sched_ravg_window;
-extern bool walt_disabled;
 #endif
 
 /*
@@ -1436,8 +1384,6 @@ TRACE_EVENT(sched_load_avg_task,
 		__field( int,	cpu				)
 		__field( unsigned long,	load_avg		)
 		__field( unsigned long,	util_avg		)
-		__field( unsigned long,	util_avg_pelt		)
-		__field( u32,		util_avg_walt		)
 		__field( u64,		load_sum		)
 		__field( u32,		util_sum		)
 		__field( u32,		period_contrib		)
@@ -1452,25 +1398,19 @@ TRACE_EVENT(sched_load_avg_task,
 		__entry->load_sum		= avg->load_sum;
 		__entry->util_sum		= avg->util_sum;
 		__entry->period_contrib		= avg->period_contrib;
-		__entry->util_avg_pelt  = avg->util_avg;
-		__entry->util_avg_walt  = 0;
 #ifdef CONFIG_SCHED_WALT
 		__entry->util_avg_walt = ((struct ravg*)_ravg)->demand /
 					 (sched_ravg_window >> SCHED_CAPACITY_SHIFT);
-		if (!walt_disabled && sysctl_sched_use_walt_task_util)
-			__entry->util_avg = __entry->util_avg_walt;
+		__entry->util_avg = __entry->util_avg_walt;
 #endif
 	),
 	TP_printk("comm=%s pid=%d cpu=%d load_avg=%lu util_avg=%lu "
-			"util_avg_pelt=%lu util_avg_walt=%u load_sum=%llu"
-		  " util_sum=%u period_contrib=%u",
+		  "load_sum=%llu util_sum=%u period_contrib=%u",
 		  __entry->comm,
 		  __entry->pid,
 		  __entry->cpu,
 		  __entry->load_avg,
 		  __entry->util_avg,
-		  __entry->util_avg_pelt,
-		  __entry->util_avg_walt,
 		  (u64)__entry->load_sum,
 		  (u32)__entry->util_sum,
 		  (u32)__entry->period_contrib)
@@ -1489,28 +1429,16 @@ TRACE_EVENT(sched_load_avg_cpu,
 		__field( int,	cpu				)
 		__field( unsigned long,	load_avg		)
 		__field( unsigned long,	util_avg		)
-		__field( unsigned long,	util_avg_pelt		)
-		__field( u32,		util_avg_walt		)
 	),
 
 	TP_fast_assign(
 		__entry->cpu			= cpu;
 		__entry->load_avg		= cfs_rq->avg.load_avg;
 		__entry->util_avg		= cfs_rq->avg.util_avg;
-		__entry->util_avg_pelt	= cfs_rq->avg.util_avg;
-		__entry->util_avg_walt	= 0;
-#ifdef CONFIG_SCHED_WALT
-		__entry->util_avg_walt = div64_ul(cpu_rq(cpu)->prev_runnable_sum,
-					 sched_ravg_window >> SCHED_CAPACITY_SHIFT);
-		if (!walt_disabled && sysctl_sched_use_walt_cpu_util)
-			__entry->util_avg		= __entry->util_avg_walt;
-#endif
 	),
 
-	TP_printk("cpu=%d load_avg=%lu util_avg=%lu "
-			  "util_avg_pelt=%lu util_avg_walt=%u",
-		  __entry->cpu, __entry->load_avg, __entry->util_avg,
-		  __entry->util_avg_pelt, __entry->util_avg_walt)
+	TP_printk("cpu=%d load_avg=%lu util_avg=%lu ",
+		  __entry->cpu, __entry->load_avg, __entry->util_avg)
 );
 
 /*
