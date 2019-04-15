@@ -2800,22 +2800,6 @@ static inline bool is_min_capacity_cpu(int cpu)
 #endif
 }
 
-static inline int
-preferred_cluster(struct sched_cluster *cluster, struct task_struct *p)
-{
-	return 1;
-}
-
-static inline struct sched_cluster *rq_cluster(struct rq *rq)
-{
-	return NULL;
-}
-
-static inline u64 scale_load_to_cpu(u64 load, int cpu)
-{
-	return load;
-}
-
 static inline int cpu_capacity(int cpu)
 {
 	return SCHED_CAPACITY_SCALE;
@@ -2844,11 +2828,6 @@ static inline int update_preferred_cluster(struct related_thread_group *grp,
 }
 
 static inline void add_new_task_to_grp(struct task_struct *new) {}
-
-static inline int same_freq_domain(int src_cpu, int dst_cpu)
-{
-	return 1;
-}
 
 static inline void clear_reserved(int cpu) { }
 static inline int alloc_related_thread_groups(void) { return 0; }
@@ -2896,11 +2875,6 @@ static inline void clear_ed_task(struct task_struct *p, struct rq *rq) { }
 static inline bool early_detection_notify(struct rq *rq, u64 wallclock)
 {
 	return 0;
-}
-
-static inline unsigned int power_cost(int cpu, bool max)
-{
-	return SCHED_CAPACITY_SCALE;
 }
 
 static inline void walt_sched_energy_populated_callback(void) { }
