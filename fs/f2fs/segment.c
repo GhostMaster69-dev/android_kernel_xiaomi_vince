@@ -1088,7 +1088,8 @@ static void __init_discard_policy(struct f2fs_sb_info *sbi,
 		dpolicy->ordered = true;
 		if (utilization(sbi) > DEF_DISCARD_URGENT_UTIL) {
 			dpolicy->granularity = MIN_DISCARD_GRANULARITY;
-			dpolicy->max_interval = DEF_MIN_DISCARD_ISSUE_TIME;
+			dpolicy->max_interval =
+				DEF_MAX_DISCARD_URGENT_ISSUE_TIME;
 		}
 	} else if (discard_type == DPOLICY_FORCE) {
 		dpolicy->min_interval = DEF_MIN_DISCARD_ISSUE_TIME;
