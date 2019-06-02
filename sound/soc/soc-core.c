@@ -1072,7 +1072,7 @@ static int soc_bind_dai_link(struct snd_soc_card *card,
 		rtd->platform = platform;
 	}
 	if (!rtd->platform) {
-		dev_err(card->dev, "ASoC: platform %s not registered\n",
+		dev_dbg(card->dev, "ASoC: platform %s not registered\n",
 			((platform_name) ? platform_name :
 			  dai_link->platform_of_node->full_name));
 		goto _err_defer;
