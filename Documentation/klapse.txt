@@ -1,0 +1,80 @@
+==================
+Kernel-based Lapse
+==================
+
+Kernel-based Lapse (K-lapse) is a linear RGB scaling module that "shifts"
+RGB based on time or brightness. This concept is inspired from LineageOS
+(formerly known as CyanogenMod) ROM's feature "livedisplay" which also
+changes the display settings (RGB, hue, temperature, etc) based on time.
+
+Parameters
+----------
+
+Can be found /sys/module/klapse/parameters/
+
+- enabled_mode
+  Definition: Switch to enable or disable klapse.
+  Values : 0 (off), 1 (time mode), 2 (brightness mode)
+
+- start_minute
+  Definition: Minute stamp at which klapse should start scaling the RGB
+              values.
+  Values : 0-1439 (Values from target to daytime)
+
+- stop_minute
+  Definition: The minute stamp by which klapse should scale back the RGB
+              values.
+  Values : 0-1439 (Values from target to daytime)
+
+- daytime_r,g,b
+  Definition: RGB used for all the time outside of start and stop minutes
+              range, or above bl_range_upper.
+  Values: 0-255,0-255,0-255
+
+- target_r,g,b
+  Definition: RGB values that will be scaled towards for all the time
+              inside of start and stop minutes range, or below
+              bl_range_lower.
+  Values: 0-255,0-255,0-255
+
+- target_minutes
+  Definition: Minutes that RBG value will remain constant after reaching
+              daytime.
+
+- dimmer_factor
+  Definition: Percentage of RBG values reduction.
+  Values : 10-100
+
+- dimmer_factor_auto
+  Definition: Switch that allows you to automatically set the dimmer, only
+              works if dimmer_factor is enabled.
+  Value : 0,1
+
+- dimmer_auto_start_minute
+  Definition: Minute stamp at which dimmer_factor is applied.
+  Values : 0-1439
+
+- dimmer_auto_stop_minute
+  Definition: Minute stamp at which brightness_factor will be reverted to
+              100. Works only if dimmer_factor_auto is 1.
+  Values : 0-1439
+
+- bl_range_upper and _lower
+  Definition: Brightness range within which klapse will scale from daytime
+              to target_rgb. Works only enabled_mode is 2.
+  Values : MIN_BRIGHTNESS-MAX_BRIGHTNESS
+
+- pulse_freq
+  Definition: Milliseconds after which klapse_pulse is called. Works only
+              when enabled_mode and dimmer_factor_auto is 1.
+  Values : 50-600000
+
+- fadeback_minutes
+  Definition: Minutes before klapse_stop_hour when RGB will start going back
+              to daytime_rgb. Only works when enabled_mode is 1.
+  Values : 0-{stop_minute - start_minute}
+
+- flow_freq
+  Definition: Milliseconds after which 1 RGB frame is shifted. Only works
+              when mode 2 is enabled.
+  Values : 50-600000
