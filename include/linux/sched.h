@@ -157,7 +157,7 @@ extern void get_iowait_load(unsigned long *nr_waiters, unsigned long *load);
 extern u64 nr_running_integral(unsigned int cpu);
 #endif
 
-#ifdef CONFIG_SMP
+#ifdef CONFIG_SCHED_WALT
 extern void sched_update_nr_prod(int cpu, long delta, bool inc);
 extern void sched_get_nr_running_avg(int *avg, int *iowait_avg, int *big_avg,
 				     unsigned int *max_nr,
