@@ -1993,7 +1993,11 @@ int msm_vidc_destroy(struct msm_vidc_inst *inst)
 	msm_vidc_debugfs_deinit_inst(inst);
 
 	pr_debug(VIDC_DBG_TAG "Closed video instance: %pK\n",
+<<<<<<< HEAD
 			VIDC_MSG_PRIO2STRING(VIDC_INFO), inst);
+=======
+			"info", inst);
+>>>>>>> 927e8f56e1f9... msm: vidc: silence video instance log
 	kfree(inst);
 	return 0;
 }
@@ -2048,4 +2052,3 @@ int msm_vidc_suspend(int core_id)
 	return msm_comm_suspend(core_id);
 }
 EXPORT_SYMBOL(msm_vidc_suspend);
-
