@@ -133,6 +133,7 @@ ifdef CONFIG_SND_SOC_TAS2557
         TAS2557_OBJS += tas2557-codec.o
         TAS2557_OBJS += tas2557-regmap.o
         TAS2557_OBJS += tiload.o
+        CFLAGS_tas2557-misc.o += $(call cc-option, -Wno-shift-overflow)
 endif
 
 ifdef CONFIG_SND_SOC_MSM_STUB
