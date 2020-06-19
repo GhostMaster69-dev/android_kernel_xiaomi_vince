@@ -1024,7 +1024,9 @@ static int __init smd_tty_init(void)
 {
 	int rc;
 
+	#ifdef CONFIG_IPC_LOGGING
 	smd_tty_log_init();
+	#endif
 	rc = platform_driver_register(&msm_smd_tty_driver);
 	if (rc) {
 		SMD_TTY_ERR("%s: msm_smd_tty_driver register failed %d\n",

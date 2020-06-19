@@ -4014,6 +4014,7 @@ static void debugfs_init(void) {}
  */
 static void *ipc_router_create_log_ctx(char *name)
 {
+	#ifdef CONFIG_IPC_LOGGING
 	struct ipc_rtr_log_ctx *sub_log_ctx;
 
 	sub_log_ctx = kmalloc(sizeof(*sub_log_ctx), GFP_KERNEL);
@@ -4031,6 +4032,9 @@ static void *ipc_router_create_log_ctx(char *name)
 	INIT_LIST_HEAD(&sub_log_ctx->list);
 	list_add_tail(&sub_log_ctx->list, &log_ctx_list);
 	return sub_log_ctx->log_ctx;
+	#else
+	return NULL;
+	#endif
 }
 
 static void ipc_router_log_ctx_init(void)

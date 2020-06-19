@@ -2217,7 +2217,9 @@ EXPORT_SYMBOL(qmi_svc_unregister);
 
 static int __init qmi_interface_init(void)
 {
+	#ifdef IPC_LOGGING
 	qmi_log_init();
+	#endif
 	return 0;
 }
 module_init(qmi_interface_init);
