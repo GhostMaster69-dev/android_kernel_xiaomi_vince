@@ -7108,8 +7108,6 @@ static inline int find_best_target(struct task_struct *p, int *backup_cpu,
 			target_cpu = -1;
 
 			fbt_env->fastpath = PREV_CPU_FASTPATH;
-			trace_sched_find_best_target(p, prefer_idle, min_util,
-					cpu, -1, -1, -1, target_cpu, -1, boosted);
 			goto out;
 		}
 	}
@@ -7217,12 +7215,6 @@ retry:
 				if (idle_cpu(i)) {
 					schedstat_inc(p->se.statistics.nr_wakeups_fbt_pref_idle);
 					schedstat_inc(this_rq()->eas_stats.fbt_pref_idle);
-
-					trace_sched_find_best_target(p,
-							prefer_idle, min_util,
-							cpu, best_idle_cpu,
-							best_active_cpu,
-							i, -1);
 
 					return i;
 				}
@@ -7469,10 +7461,6 @@ retry:
 		*backup_cpu = -1;
 	}
 out:
-	trace_sched_find_best_target(p, prefer_idle, min_util, cpu,
-				     best_idle_cpu, best_active_cpu,
-				     target_cpu, *backup_cpu);
-
 	schedstat_inc(p->se.statistics.nr_wakeups_fbt_count);
 	schedstat_inc(this_rq()->eas_stats.fbt_count);
 
