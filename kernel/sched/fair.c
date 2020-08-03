@@ -7657,12 +7657,12 @@ static inline int wake_to_idle(struct task_struct *p)
 static inline bool
 bias_to_waker_cpu(struct task_struct *p, int cpu, struct cpumask *rtg_target)
 {
-	int rtg_target_cpu = rtg_target ? cpumask_first(rtg_target) : cpu;
+	bool base_test = cpumask_test_cpu(cpu, tsk_cpus_allowed(p)) &&
+			 cpu_active(cpu) && !cpu_isolated(cpu) &&
+			 task_fits_max(p, cpu);
+	bool rtg_test = rtg_target && cpumask_test_cpu(cpu, rtg_target);
 
-	return cpumask_test_cpu(cpu, tsk_cpus_allowed(p)) &&
-	       cpu_active(cpu) && !cpu_isolated(cpu) &&
-	       capacity_orig_of(cpu) >= capacity_orig_of(rtg_target_cpu) &&
-	       task_fits_max(p, cpu);
+	return base_test && (!rtg_target || rtg_test);
 }
 
 #ifdef CONFIG_SCHED_WALT
