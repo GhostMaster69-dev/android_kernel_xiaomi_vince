@@ -2562,11 +2562,6 @@ static inline int compute_load_scale_factor(struct sched_cluster *cluster)
 	return load_scale;
 }
 
-static inline int cpu_max_power_cost(int cpu)
-{
-	return cpu_rq(cpu)->cluster->max_power_cost;
-}
-
 static inline int cpu_min_power_cost(int cpu)
 {
 	return cpu_rq(cpu)->cluster->min_power_cost;
@@ -2910,11 +2905,6 @@ static inline void update_cpu_cluster_capacity(const cpumask_t *cpus) { }
 static inline unsigned long thermal_cap(int cpu)
 {
 	return SCHED_CAPACITY_SCALE;
-}
-
-static inline int cpu_max_power_cost(int cpu)
-{
-	return capacity_orig_of(cpu);
 }
 #endif
 
