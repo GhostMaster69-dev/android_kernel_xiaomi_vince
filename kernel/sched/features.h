@@ -84,7 +84,7 @@ SCHED_FEAT(ATTACH_AGE_LOAD, true)
  * UtilEstimation. Use estimated CPU utilization.
  */
 SCHED_FEAT(UTIL_EST, true)
-SCHED_FEAT(UTIL_EST_FASTUP, true)
+SCHED_FEAT(UTIL_EST_FASTUP, false)
 
 /*
  * Energy aware scheduling. Use platform energy model to guide scheduling
