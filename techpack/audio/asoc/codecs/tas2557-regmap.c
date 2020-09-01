@@ -345,7 +345,9 @@ void tas2557_enableIRQ(struct tas2557_priv *pTAS2557, bool enable)
 			if (gpio_is_valid(pTAS2557->mnGpioINT)) {
 				enable_irq(pTAS2557->mnIRQ);
 				/* check after 10 ms */
-				schedule_delayed_work(&pTAS2557->irq_work, msecs_to_jiffies(10));
+				queue_delayed_work(system_power_efficient_wq,
+						   &pTAS2557->irq_work,
+						   msecs_to_jiffies(10));
 				pTAS2557->mbIRQEnable = true;
 			}
 		}
@@ -523,7 +525,8 @@ static irqreturn_t tas2557_irq_handler(int irq, void *dev_id)
 
 	tas2557_enableIRQ(pTAS2557, false);
 	/* get IRQ status after 100 ms */
-	schedule_delayed_work(&pTAS2557->irq_work, msecs_to_jiffies(100));
+	queue_delayed_work(system_power_efficient_wq,&pTAS2557->irq_work,
+			   msecs_to_jiffies(100));
 	return IRQ_HANDLED;
 }
 

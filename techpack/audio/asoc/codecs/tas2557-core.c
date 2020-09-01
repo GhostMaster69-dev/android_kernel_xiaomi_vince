@@ -301,7 +301,8 @@ static void failsafe(struct tas2557_priv *pTAS2557)
 		pTAS2557->mnRestart ++;
 		msleep(100);
 		dev_err(pTAS2557->dev, "I2C COMM error, restart SmartAmp.\n");
-		schedule_delayed_work(&pTAS2557->irq_work, msecs_to_jiffies(100));
+		queue_delayed_work(system_power_efficient_wq,&pTAS2557->irq_work,
+				   msecs_to_jiffies(100));
 		return;
 	}
 #endif
