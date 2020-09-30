@@ -8775,7 +8775,7 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
 	 * big cores are overutilized
 	 */
 	if (!env->src_rq->rd->overutilized &&
-		(cpu_capacity(env->dst_cpu) < cpu_capacity(env->src_cpu)) &&
+		env->flags & LBF_IGNORE_BIG_TASKS &&
 		(schedtune_task_boost(p) > 0))
 		return 0;
 
