@@ -623,7 +623,7 @@ int vos_process_bt_profile(bool bt_enabled, bool bt_adv,
 static inline int
 vos_process_bt_profile(bool bt_enabled, bool bt_adv,
 		       bool ble_enabled, bool bt_a2dp,
-		       bool bt_sco);
+		       bool bt_sco)
 {
 	return -ENOTSUPP;
 }
