@@ -168,8 +168,8 @@ struct security_class_mapping secclass_map[] = {
 	{ "cap2_userns",
 	  { COMMON_CAP2_PERMS, NULL } },
 	{ "bpf",
-	  {"map_create", "map_read", "map_write", "prog_load", "prog_run"} },
+	  { "map_create", "map_read", "map_write", "prog_load", "prog_run", NULL } },
 	{ "perf_event",
-	  {"open", "cpu", "kernel", "tracepoint", "read", "write"} },
+	  { "open", "cpu", "kernel", "tracepoint", "read", "write", NULL } },
 	{ NULL }
   };
