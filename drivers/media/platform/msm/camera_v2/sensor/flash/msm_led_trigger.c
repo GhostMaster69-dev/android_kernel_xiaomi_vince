@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014, 2020,  The Linux Foundation. All rights reserved.
+/* Copyright (c) 2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -18,7 +18,7 @@
 
 #define FLASH_NAME "camera-led-flash"
 
-//#undef CDBG
+#undef CDBG
 #define CDBG(fmt, args...) pr_debug(fmt, ##args)
 
 static enum flash_type flashtype;
@@ -49,7 +49,7 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 	CDBG("called led_state %d\n", cfg->cfgtype);
 
 	if (!fctrl) {
-		CDBG("flash failed\n");
+		pr_err("failed\n");
 		return -EINVAL;
 	}
 
@@ -96,7 +96,7 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 					curr_l = cfg->flash_current[i];
 				} else {
 					curr_l = fctrl->flash_op_current[i];
-					pr_err(" i %d clamped %d\n",
+					pr_debug("LED flash %d clamped %d\n",
 						i, curr_l);
 				}
 				led_trigger_event(fctrl->flash_trigger[i],
@@ -117,7 +117,6 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 		break;
 
 	default:
-		CDBG("default set\n");
 		rc = -EFAULT;
 		break;
 	}
@@ -129,8 +128,6 @@ static const struct of_device_id msm_led_trigger_dt_match[] = {
 	{.compatible = "qcom,camera-led-flash"},
 	{}
 };
-
-MODULE_DEVICE_TABLE(of, msm_led_trigger_dt_match);
 
 static int32_t msm_led_trigger_probe(struct platform_device *pdev)
 {
@@ -217,7 +214,7 @@ static int32_t msm_led_trigger_probe(struct platform_device *pdev)
 
 			of_node_put(flash_src_node);
 
-			 CDBG("max_current[%d] %d\n",
+			CDBG("max_current[%d] %d\n",
 				i, fctrl.flash_op_current[i]);
 
 			led_trigger_register_simple(fctrl.flash_trigger_name[i],
@@ -232,7 +229,7 @@ static int32_t msm_led_trigger_probe(struct platform_device *pdev)
 	/* Torch source */
 	if (of_get_property(of_node, "qcom,torch-source", &count)) {
 		count /= sizeof(uint32_t);
-		pr_err("qcom,torch-source count %d\n", count);
+		CDBG("qcom,torch-source count %d\n", count);
 		if (count > MAX_LED_TRIGGERS) {
 			pr_err("invalid count qcom,torch-source %d\n", count);
 			return -EINVAL;
@@ -295,11 +292,13 @@ static int32_t msm_led_trigger_probe(struct platform_device *pdev)
 	}
 
 	rc = msm_led_flash_create_v4lsubdev(pdev, &fctrl);
-	//if (!rc)
+	if (!rc)
 		msm_led_torch_create_classdev(pdev, &fctrl);
 
 	return rc;
 }
+
+MODULE_DEVICE_TABLE(of, msm_led_trigger_dt_match);
 
 static struct platform_driver msm_led_trigger_driver = {
 	.probe = msm_led_trigger_probe,
@@ -310,21 +309,10 @@ static struct platform_driver msm_led_trigger_driver = {
 	},
 };
 
-static int __init msm_led_trigger_init_module(void)
+static int __init msm_led_trigger_add_driver(void)
 {
-	int32_t rc = 0;
-
 	CDBG("called\n");
-	rc = platform_driver_register(&msm_led_trigger_driver);
-	if (rc)
-		pr_err("platform probe for flash failed");
-
-	return rc;
-}
-
-static void __exit msm_led_trigger_exit_module(void)
-{
-	platform_driver_unregister(&msm_led_trigger_driver);
+	return platform_driver_register(&msm_led_trigger_driver);
 }
 
 static struct msm_flash_fn_t msm_led_trigger_func_tbl = {
@@ -336,7 +324,6 @@ static struct msm_led_flash_ctrl_t fctrl = {
 	.func_tbl = &msm_led_trigger_func_tbl,
 };
 
-module_init(msm_led_trigger_init_module);
-module_exit(msm_led_trigger_exit_module);
+module_init(msm_led_trigger_add_driver);
 MODULE_DESCRIPTION("LED TRIGGER FLASH");
 MODULE_LICENSE("GPL v2");

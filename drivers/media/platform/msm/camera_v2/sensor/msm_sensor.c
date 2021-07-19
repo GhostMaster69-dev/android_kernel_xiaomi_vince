@@ -1,4 +1,4 @@
-/* Copyright (c) 2011-2019, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2011-2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -17,7 +17,6 @@
 #include "msm_camera_i2c_mux.h"
 #include <linux/regulator/rpm-smd-regulator.h>
 #include <linux/regulator/consumer.h>
-#include <media/adsp-shmem-device.h>
 
 #undef CDBG
 #define CDBG(fmt, args...) pr_debug(fmt, ##args)
@@ -29,7 +28,6 @@ static void msm_sensor_adjust_mclk(struct msm_camera_power_ctrl_t *ctrl)
 {
 	int idx;
 	struct msm_sensor_power_setting *power_setting;
-
 	for (idx = 0; idx < ctrl->power_setting_size; idx++) {
 		power_setting = &ctrl->power_setting[idx];
 		if (power_setting->seq_type == SENSOR_CLK &&
@@ -43,13 +41,13 @@ static void msm_sensor_adjust_mclk(struct msm_camera_power_ctrl_t *ctrl)
 		}
 	}
 
+	return;
 }
 
 static void msm_sensor_misc_regulator(
 	struct msm_sensor_ctrl_t *sctrl, uint32_t enable)
 {
 	int32_t rc = 0;
-
 	if (enable) {
 		sctrl->misc_regulator = (void *)rpm_regulator_get(
 			&sctrl->pdev->dev, sctrl->sensordata->misc_regulator);
@@ -83,17 +81,14 @@ static void msm_sensor_misc_regulator(
 
 int32_t msm_sensor_free_sensor_data(struct msm_sensor_ctrl_t *s_ctrl)
 {
-	struct msm_camera_sensor_slave_info *slave_info = NULL;
-
 	if (!s_ctrl->pdev && !s_ctrl->sensor_i2c_client->client)
 		return 0;
 	kfree(s_ctrl->sensordata->slave_info);
-	slave_info = s_ctrl->sensordata->cam_slave_info;
-	kfree(slave_info->sensor_id_info.setting.reg_setting);
 	kfree(s_ctrl->sensordata->cam_slave_info);
 	kfree(s_ctrl->sensordata->actuator_info);
 	kfree(s_ctrl->sensordata->power_info.gpio_conf->gpio_num_info);
 	kfree(s_ctrl->sensordata->power_info.gpio_conf->cam_gpio_req_tbl);
+	kfree(s_ctrl->sensordata->power_info.gpio_conf->cam_gpio_set_tbl);
 	kfree(s_ctrl->sensordata->power_info.gpio_conf);
 	kfree(s_ctrl->sensordata->power_info.cam_vreg);
 	kfree(s_ctrl->sensordata->power_info.power_setting);
@@ -205,9 +200,6 @@ int msm_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 					&msm_sensor_secure_func_tbl;
 			}
 		}
-#if IS_ENABLED(CONFIG_ARCH_QM215)
-		msleep(60);
-#endif
 		rc = msm_camera_power_up(power_info, s_ctrl->sensor_device_type,
 			sensor_i2c_client);
 		if (rc < 0)
@@ -262,33 +254,11 @@ int msm_sensor_match_id(struct msm_sensor_ctrl_t *s_ctrl)
 	slave_info = s_ctrl->sensordata->slave_info;
 	sensor_name = s_ctrl->sensordata->sensor_name;
 
-	if (adsp_shmem_is_initialized()) {
-		pr_debug("%s aDSP camera supports sensor_name:%s\n", __func__,
-			adsp_shmem_get_sensor_name());
-		if (strnstr(sensor_name, adsp_shmem_get_sensor_name(),
-			strlen(sensor_name))) {
-			pr_debug("%s ARM-side sensor matched with aDSP-side sensor:%s\n",
-				__func__, sensor_name);
-			return rc;
-		}
-	}
-
 	if (!sensor_i2c_client || !slave_info || !sensor_name) {
 		pr_err("%s:%d failed: %pK %pK %pK\n",
 			__func__, __LINE__, sensor_i2c_client, slave_info,
 			sensor_name);
 		return -EINVAL;
-	}
-
-	if (slave_info->setting && slave_info->setting->size > 0) {
-		rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->
-			i2c_write_table(s_ctrl->sensor_i2c_client,
-			slave_info->setting);
-		if (rc < 0)
-			pr_err("Write array failed prior to probe\n");
-
-	} else {
-		CDBG("No writes needed for this sensor before probe\n");
 	}
 
 	rc = sensor_i2c_client->i2c_func_tbl->i2c_read(
@@ -343,15 +313,15 @@ static void msm_sensor_stop_stream(struct msm_sensor_ctrl_t *s_ctrl)
 		}
 	}
 	mutex_unlock(s_ctrl->msm_sensor_mutex);
+	return;
 }
 
 static int msm_sensor_get_af_status(struct msm_sensor_ctrl_t *s_ctrl,
-			void *argp)
+			void __user *argp)
 {
 	/* TO-DO: Need to set AF status register address and expected value
-	 * We need to check the AF status in the sensor register and
-	 * set the status in the *status variable accordingly
-	 */
+	We need to check the AF status in the sensor register and
+	set the status in the *status variable accordingly*/
 	return 0;
 }
 
@@ -360,8 +330,7 @@ static long msm_sensor_subdev_ioctl(struct v4l2_subdev *sd,
 {
 	int rc = 0;
 	struct msm_sensor_ctrl_t *s_ctrl = get_sctrl(sd);
-	void *argp = (void *)arg;
-
+	void __user *argp = (void __user *)arg;
 	if (!s_ctrl) {
 		pr_err("%s s_ctrl NULL\n", __func__);
 		return -EBADF;
@@ -396,7 +365,6 @@ static long msm_sensor_subdev_do_ioctl(
 {
 	struct video_device *vdev = video_devdata(file);
 	struct v4l2_subdev *sd = vdev_to_v4l2_subdev(vdev);
-
 	switch (cmd) {
 	case VIDIOC_MSM_SENSOR_CFG32:
 		cmd = VIDIOC_MSM_SENSOR_CFG;
@@ -412,12 +380,11 @@ long msm_sensor_subdev_fops_ioctl(struct file *file,
 }
 
 static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
-	void *argp)
+	void __user *argp)
 {
 	struct sensorb_cfg_data32 *cdata = (struct sensorb_cfg_data32 *)argp;
 	int32_t rc = 0;
 	int32_t i = 0;
-
 	mutex_lock(s_ctrl->msm_sensor_mutex);
 	CDBG("%s:%d %s cfgtype = %d\n", __func__, __LINE__,
 		s_ctrl->sensordata->sensor_name, cdata->cfgtype);
@@ -478,11 +445,6 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		struct msm_camera_i2c_reg_setting conf_array;
 		struct msm_camera_i2c_reg_array *reg_setting = NULL;
 
-		if (adsp_shmem_get_state() != CAMERA_STATUS_END) {
-			mutex_unlock(s_ctrl->msm_sensor_mutex);
-			return 0;
-		}
-
 		if (s_ctrl->is_csid_tg_mode)
 			goto DONE;
 
@@ -494,7 +456,7 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		}
 
 		if (copy_from_user(&conf_array32,
-			(void __user *)compat_ptr(cdata->cfg.setting),
+			(void *)compat_ptr(cdata->cfg.setting),
 			sizeof(struct msm_camera_i2c_reg_setting32))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -EFAULT;
@@ -505,6 +467,7 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		conf_array.data_type = conf_array32.data_type;
 		conf_array.delay = conf_array32.delay;
 		conf_array.size = conf_array32.size;
+		conf_array.reg_setting = compat_ptr(conf_array32.reg_setting);
 
 		if (!conf_array.size ||
 			conf_array.size > I2C_REG_DATA_MAX) {
@@ -516,12 +479,12 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		reg_setting = kzalloc(conf_array.size *
 			(sizeof(struct msm_camera_i2c_reg_array)), GFP_KERNEL);
 		if (!reg_setting) {
+			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -ENOMEM;
 			break;
 		}
 		if (copy_from_user(reg_setting,
-			(void __user *)
-			compat_ptr(conf_array32.reg_setting),
+			(void *)(conf_array.reg_setting),
 			conf_array.size *
 			sizeof(struct msm_camera_i2c_reg_array))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
@@ -532,15 +495,15 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 
 		conf_array.reg_setting = reg_setting;
 
-		if (cdata->cfgtype == CFG_WRITE_I2C_ARRAY)
+		if (CFG_WRITE_I2C_ARRAY == cdata->cfgtype)
 			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->
 				i2c_write_table(s_ctrl->sensor_i2c_client,
 				&conf_array);
-		else if (cdata->cfgtype == CFG_WRITE_I2C_ARRAY_ASYNC)
+		else if (CFG_WRITE_I2C_ARRAY_ASYNC == cdata->cfgtype)
 			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->
 				i2c_write_table_async(s_ctrl->sensor_i2c_client,
 				&conf_array);
-		else if (cdata->cfgtype == CFG_WRITE_I2C_ARRAY_SYNC_BLOCK)
+		else if (CFG_WRITE_I2C_ARRAY_SYNC_BLOCK == cdata->cfgtype)
 			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->
 				i2c_write_table_sync_block(
 				s_ctrl->sensor_i2c_client,
@@ -560,20 +523,14 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		uint16_t orig_slave_addr = 0, read_slave_addr = 0;
 		uint16_t orig_addr_type = 0, read_addr_type = 0;
 
-		if (adsp_shmem_get_state() != CAMERA_STATUS_END) {
-			mutex_unlock(s_ctrl->msm_sensor_mutex);
-			return 0;
-		}
-
 		if (s_ctrl->is_csid_tg_mode)
 			goto DONE;
 
 		read_config_ptr =
-			(__force struct msm_camera_i2c_read_config *)
+			(struct msm_camera_i2c_read_config *)
 			compat_ptr(cdata->cfg.setting);
 
-		if (copy_from_user(&read_config,
-			(void __user *) read_config_ptr,
+		if (copy_from_user(&read_config, read_config_ptr,
 			sizeof(struct msm_camera_i2c_read_config))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -EFAULT;
@@ -628,12 +585,7 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 			pr_err("%s:%d: i2c_read failed\n", __func__, __LINE__);
 			break;
 		}
-		if (copy_to_user((void __user *)(&read_config_ptr->data),
-				&local_data, sizeof(local_data))) {
-			pr_err("%s:%d failed\n", __func__, __LINE__);
-			rc = -EFAULT;
-			break;
-		}
+		read_config_ptr->data = local_data;
 		break;
 	}
 	case CFG_SLAVE_WRITE_I2C_ARRAY: {
@@ -643,16 +595,11 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		uint16_t orig_slave_addr = 0, write_slave_addr = 0;
 		uint16_t orig_addr_type = 0, write_addr_type = 0;
 
-		if (adsp_shmem_get_state() != CAMERA_STATUS_END) {
-			mutex_unlock(s_ctrl->msm_sensor_mutex);
-			return 0;
-		}
-
 		if (s_ctrl->is_csid_tg_mode)
 			goto DONE;
 
 		if (copy_from_user(&write_config32,
-				(void __user *)compat_ptr(cdata->cfg.setting),
+				(void *)compat_ptr(cdata->cfg.setting),
 				sizeof(
 				struct msm_camera_i2c_array_write_config32))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
@@ -669,6 +616,8 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 			write_config32.conf_array.delay;
 		write_config.conf_array.size =
 			write_config32.conf_array.size;
+		write_config.conf_array.reg_setting =
+			compat_ptr(write_config32.conf_array.reg_setting);
 
 		pr_debug("%s:CFG_SLAVE_WRITE_I2C_ARRAY:\n", __func__);
 		pr_debug("%s:slave_addr=0x%x, array_size=%d addr_type=%d data_type=%d\n",
@@ -692,9 +641,7 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 			break;
 		}
 		if (copy_from_user(reg_setting,
-				(void __user *)
-				compat_ptr(
-				write_config32.conf_array.reg_setting),
+				(void *)(write_config.conf_array.reg_setting),
 				write_config.conf_array.size *
 				sizeof(struct msm_camera_i2c_reg_array))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
@@ -754,11 +701,6 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		struct msm_camera_i2c_seq_reg_setting conf_array;
 		struct msm_camera_i2c_seq_reg_array *reg_setting = NULL;
 
-		if (adsp_shmem_get_state() != CAMERA_STATUS_END) {
-			mutex_unlock(s_ctrl->msm_sensor_mutex);
-			return 0;
-		}
-
 		if (s_ctrl->is_csid_tg_mode)
 			goto DONE;
 
@@ -770,7 +712,7 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		}
 
 		if (copy_from_user(&conf_array32,
-			(void __user *)compat_ptr(cdata->cfg.setting),
+			(void *)compat_ptr(cdata->cfg.setting),
 			sizeof(struct msm_camera_i2c_seq_reg_setting32))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -EFAULT;
@@ -780,6 +722,7 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		conf_array.addr_type = conf_array32.addr_type;
 		conf_array.delay = conf_array32.delay;
 		conf_array.size = conf_array32.size;
+		conf_array.reg_setting = compat_ptr(conf_array32.reg_setting);
 
 		if (!conf_array.size ||
 			conf_array.size > I2C_SEQ_REG_DATA_MAX) {
@@ -796,9 +739,7 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 			rc = -ENOMEM;
 			break;
 		}
-		if (copy_from_user(reg_setting,
-			(void __user *)
-			compat_ptr(conf_array32.reg_setting),
+		if (copy_from_user(reg_setting, (void *)conf_array.reg_setting,
 			conf_array.size *
 			sizeof(struct msm_camera_i2c_seq_reg_array))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
@@ -875,17 +816,13 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		struct msm_camera_i2c_reg_setting32 stop_setting32;
 		struct msm_camera_i2c_reg_setting *stop_setting =
 			&s_ctrl->stop_setting;
-
-		if (adsp_shmem_get_state() != CAMERA_STATUS_END) {
-			mutex_unlock(s_ctrl->msm_sensor_mutex);
-			return 0;
-		}
+		struct msm_camera_i2c_reg_array *reg_setting = NULL;
 
 		if (s_ctrl->is_csid_tg_mode)
 			goto DONE;
 
 		if (copy_from_user(&stop_setting32,
-				(void __user *)compat_ptr((cdata->cfg.setting)),
+				(void *)compat_ptr((cdata->cfg.setting)),
 			sizeof(struct msm_camera_i2c_reg_setting32))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -EFAULT;
@@ -897,6 +834,8 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		stop_setting->delay = stop_setting32.delay;
 		stop_setting->size = stop_setting32.size;
 
+		reg_setting = compat_ptr(stop_setting32.reg_setting);
+
 		if (!stop_setting->size) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -EFAULT;
@@ -905,12 +844,12 @@ static int msm_sensor_config32(struct msm_sensor_ctrl_t *s_ctrl,
 		stop_setting->reg_setting = kzalloc(stop_setting->size *
 			(sizeof(struct msm_camera_i2c_reg_array)), GFP_KERNEL);
 		if (!stop_setting->reg_setting) {
+			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -ENOMEM;
 			break;
 		}
 		if (copy_from_user(stop_setting->reg_setting,
-			(void __user *)
-			compat_ptr(stop_setting32.reg_setting),
+			(void *)reg_setting,
 			stop_setting->size *
 			sizeof(struct msm_camera_i2c_reg_array))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
@@ -969,12 +908,11 @@ DONE:
 }
 #endif
 
-int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
+int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void __user *argp)
 {
 	struct sensorb_cfg_data *cdata = (struct sensorb_cfg_data *)argp;
 	int32_t rc = 0;
 	int32_t i = 0;
-
 	mutex_lock(s_ctrl->msm_sensor_mutex);
 	CDBG("%s:%d %s cfgtype = %d\n", __func__, __LINE__,
 		s_ctrl->sensordata->sensor_name, cdata->cfgtype);
@@ -1046,7 +984,7 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
 		}
 
 		if (copy_from_user(&conf_array,
-			(void __user *)cdata->cfg.setting,
+			(void *)cdata->cfg.setting,
 			sizeof(struct msm_camera_i2c_reg_setting))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -EFAULT;
@@ -1063,11 +1001,11 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
 		reg_setting = kzalloc(conf_array.size *
 			(sizeof(struct msm_camera_i2c_reg_array)), GFP_KERNEL);
 		if (!reg_setting) {
+			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -ENOMEM;
 			break;
 		}
-		if (copy_from_user(reg_setting,
-			(void __user *)conf_array.reg_setting,
+		if (copy_from_user(reg_setting, (void *)conf_array.reg_setting,
 			conf_array.size *
 			sizeof(struct msm_camera_i2c_reg_array))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
@@ -1081,11 +1019,11 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
 			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->
 				i2c_write_table(s_ctrl->sensor_i2c_client,
 					&conf_array);
-		else if (cdata->cfgtype == CFG_WRITE_I2C_ARRAY_ASYNC)
+		else if (CFG_WRITE_I2C_ARRAY_ASYNC == cdata->cfgtype)
 			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->
 				i2c_write_table_async(s_ctrl->sensor_i2c_client,
 					&conf_array);
-		else if (cdata->cfgtype == CFG_WRITE_I2C_ARRAY_SYNC_BLOCK)
+		else if (CFG_WRITE_I2C_ARRAY_SYNC_BLOCK == cdata->cfgtype)
 			rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->
 				i2c_write_table_sync_block(
 					s_ctrl->sensor_i2c_client,
@@ -1110,8 +1048,7 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
 
 		read_config_ptr =
 			(struct msm_camera_i2c_read_config *)cdata->cfg.setting;
-		if (copy_from_user(&read_config,
-			(void __user *)read_config_ptr,
+		if (copy_from_user(&read_config, read_config_ptr,
 			sizeof(struct msm_camera_i2c_read_config))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -EFAULT;
@@ -1162,12 +1099,7 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
 			pr_err("%s:%d: i2c_read failed\n", __func__, __LINE__);
 			break;
 		}
-		if (copy_to_user((void __user *)(&read_config_ptr->data),
-				&local_data, sizeof(local_data))) {
-			pr_err("%s:%d failed\n", __func__, __LINE__);
-			rc = -EFAULT;
-			break;
-		}
+		read_config_ptr->data = local_data;
 		break;
 	}
 	case CFG_SLAVE_WRITE_I2C_ARRAY: {
@@ -1180,7 +1112,7 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
 			goto DONE;
 
 		if (copy_from_user(&write_config,
-			(void __user *)cdata->cfg.setting,
+			(void *)cdata->cfg.setting,
 			sizeof(struct msm_camera_i2c_array_write_config))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -EFAULT;
@@ -1201,12 +1133,12 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
 		reg_setting = kzalloc(write_config.conf_array.size *
 			(sizeof(struct msm_camera_i2c_reg_array)), GFP_KERNEL);
 		if (!reg_setting) {
+			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -ENOMEM;
 			break;
 		}
 		if (copy_from_user(reg_setting,
-				(void __user *)
-				(write_config.conf_array.reg_setting),
+				(void *)(write_config.conf_array.reg_setting),
 				write_config.conf_array.size *
 				sizeof(struct msm_camera_i2c_reg_array))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
@@ -1271,7 +1203,7 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
 		}
 
 		if (copy_from_user(&conf_array,
-			(void __user *)cdata->cfg.setting,
+			(void *)cdata->cfg.setting,
 			sizeof(struct msm_camera_i2c_seq_reg_setting))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -EFAULT;
@@ -1293,8 +1225,7 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
 			rc = -ENOMEM;
 			break;
 		}
-		if (copy_from_user(reg_setting,
-			(void __user *)conf_array.reg_setting,
+		if (copy_from_user(reg_setting, (void *)conf_array.reg_setting,
 			conf_array.size *
 			sizeof(struct msm_camera_i2c_seq_reg_array))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
@@ -1378,7 +1309,7 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
 			goto DONE;
 
 		if (copy_from_user(stop_setting,
-			(void __user *)cdata->cfg.setting,
+			(void *)cdata->cfg.setting,
 			sizeof(struct msm_camera_i2c_reg_setting))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -EFAULT;
@@ -1395,11 +1326,12 @@ int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void *argp)
 		stop_setting->reg_setting = kzalloc(stop_setting->size *
 			(sizeof(struct msm_camera_i2c_reg_array)), GFP_KERNEL);
 		if (!stop_setting->reg_setting) {
+			pr_err("%s:%d failed\n", __func__, __LINE__);
 			rc = -ENOMEM;
 			break;
 		}
 		if (copy_from_user(stop_setting->reg_setting,
-			(void __user *)reg_setting,
+			(void *)reg_setting,
 			stop_setting->size *
 			sizeof(struct msm_camera_i2c_reg_array))) {
 			pr_err("%s:%d failed\n", __func__, __LINE__);
@@ -1474,7 +1406,6 @@ static int msm_sensor_power(struct v4l2_subdev *sd, int on)
 {
 	int rc = 0;
 	struct msm_sensor_ctrl_t *s_ctrl = get_sctrl(sd);
-
 	mutex_lock(s_ctrl->msm_sensor_mutex);
 	if (!on && s_ctrl->sensor_state == MSM_SENSOR_POWER_UP) {
 		s_ctrl->func_tbl->sensor_power_down(s_ctrl);
@@ -1483,12 +1414,31 @@ static int msm_sensor_power(struct v4l2_subdev *sd, int on)
 	mutex_unlock(s_ctrl->msm_sensor_mutex);
 	return rc;
 }
+
+static int msm_sensor_v4l2_enum_fmt(struct v4l2_subdev *sd,
+	unsigned int index, enum v4l2_mbus_pixelcode *code)
+{
+	struct msm_sensor_ctrl_t *s_ctrl = get_sctrl(sd);
+
+	if ((unsigned int)index >= s_ctrl->sensor_v4l2_subdev_info_size)
+		return -EINVAL;
+
+	*code = s_ctrl->sensor_v4l2_subdev_info[index].code;
+	return 0;
+}
+
 static struct v4l2_subdev_core_ops msm_sensor_subdev_core_ops = {
 	.ioctl = msm_sensor_subdev_ioctl,
 	.s_power = msm_sensor_power,
 };
+
+static struct v4l2_subdev_video_ops msm_sensor_subdev_video_ops = {
+	.enum_mbus_fmt = msm_sensor_v4l2_enum_fmt,
+};
+
 static struct v4l2_subdev_ops msm_sensor_subdev_ops = {
 	.core = &msm_sensor_subdev_core_ops,
+	.video  = &msm_sensor_subdev_video_ops,
 };
 
 static struct msm_sensor_fn_t msm_sensor_func_tbl = {
@@ -1567,8 +1517,11 @@ int32_t msm_sensor_init_default_params(struct msm_sensor_ctrl_t *s_ctrl)
 	/* Initialize cci_client */
 	s_ctrl->sensor_i2c_client->cci_client = kzalloc(sizeof(
 		struct msm_camera_cci_client), GFP_KERNEL);
-	if (!s_ctrl->sensor_i2c_client->cci_client)
+	if (!s_ctrl->sensor_i2c_client->cci_client) {
+		pr_err("%s:%d failed: no memory cci_client %pK\n", __func__,
+			__LINE__, s_ctrl->sensor_i2c_client->cci_client);
 		return -ENOMEM;
+	}
 
 	if (s_ctrl->sensor_device_type == MSM_CAMERA_PLATFORM_DEVICE) {
 		cci_client = s_ctrl->sensor_i2c_client->cci_client;

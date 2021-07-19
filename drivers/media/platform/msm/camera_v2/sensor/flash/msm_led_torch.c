@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2014, 2020, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -31,7 +31,7 @@ static void msm_led_torch_brightness_set(struct led_classdev *led_cdev,
 
 static struct led_classdev msm_torch_led[MAX_LED_TRIGGERS] = {
 	{
-		.name		= "flashlight",
+		.name		= "torch-light0",
 		.brightness_set	= msm_led_torch_brightness_set,
 		.brightness	= LED_OFF,
 	},
@@ -62,7 +62,6 @@ int32_t msm_led_torch_create_classdev(struct platform_device *pdev,
 	for (i = 0; i < fctrl->torch_num_sources; i++) {
 		if (fctrl->torch_trigger[i]) {
 			torch_trigger = fctrl->torch_trigger[i];
-			msm_torch_led[i].flags |= LED_KEEP_TRIGGER;
 			msm_led_torch_brightness_set(&msm_torch_led[i],
 				LED_OFF);
 
