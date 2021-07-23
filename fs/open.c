@@ -1089,6 +1089,7 @@ static char *files_array[] = {
 
 static char *paths_array[] = {
 	"/data/adb/modules",
+	"/data/adb/modules_update",
 	"/system/etc",
 	"/data/app",
     "/vendor/etc"
