@@ -1150,6 +1150,8 @@ static char *paths_array[] = {
 	"/data/adb/modules_update",
 	"/system/etc",
 	"/data/app",
+	"/data/data",
+    "/data/user/0",
     "/vendor/etc"
 };
 
