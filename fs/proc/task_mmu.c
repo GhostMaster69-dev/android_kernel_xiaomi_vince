@@ -1658,7 +1658,7 @@ cont:
 		if (!page)
 			continue;
 
-		if (isolate_lru_page(page))
+		if (isolate_lru_page(compound_head(page)))
 			continue;
 
 		list_add(&page->lru, &page_list);
@@ -1993,6 +1993,7 @@ static int gather_pte_stats(pmd_t *pmd, unsigned long addr,
 
 	} while (pte++, addr += PAGE_SIZE, addr != end);
 	pte_unmap_unlock(orig_pte, ptl);
+	cond_resched();
 	return 0;
 }
 #ifdef CONFIG_HUGETLB_PAGE

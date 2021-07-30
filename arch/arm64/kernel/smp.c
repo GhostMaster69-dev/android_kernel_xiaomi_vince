@@ -1050,7 +1050,6 @@ void smp_send_stop(void)
 
 	/* Wait up to one second for other CPUs to stop */
 	timeout = USEC_PER_SEC;
-
 	while (num_other_active_cpus() && timeout--)
 		udelay(1);
 
