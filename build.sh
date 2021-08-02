@@ -1,18 +1,22 @@
 #! /bin/bash
+
+#
 # Copyright (C) 2020 StarLight5234
+# Copyright (C) 2021 GhostMaster69-dev
 #
 
-export DEVICE="Vince"
+export DEVICE="VINCE"
 export CONFIG="vince-perf_defconfig"
 export CHANNEL_ID="$ID"
 export TELEGRAM_TOKEN="$BOT_API_KEY"
 export TC_PATH="$HOME/toolchains"
-export ZIP_DIR="$HOME/Zipper"
+export ZIP_DIR="$(pwd)/Flasher"
 export IS_MIUI="no"
 export KERNEL_DIR=$(pwd)
-export KBUILD_BUILD_USER="Starlight"
-export GCC_COMPILE="$GCC" 
+export KBUILD_BUILD_USER="Unitrix-Kernel"
+export GCC_COMPILE="no"
 export KBUILD_BUILD_HOST="Cosmic-Horizon"
+export KBUILD_COMPILER_STRING="Proton clang version 13.0.0"
 
 #==============================================================
 #===================== Function Definition ====================
@@ -83,7 +87,6 @@ else
 	export COMPILER="Arter97's GCC Compiler" 
 fi
 
-rm -rf $ZIP_DIR && git clone https://github.com/Unitrix-Kernel/AnyKernel3.git -b vince $ZIP_DIR
 }
 
 #==============================================================
