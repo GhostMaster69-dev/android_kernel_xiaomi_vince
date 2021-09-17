@@ -1240,7 +1240,7 @@ static int bg_cdc_probe(struct platform_device *pdev)
 
 	adsp_state = apr_get_subsys_state();
 	if (adsp_state != APR_SUBSYS_LOADED) {
-		pr_err("%s:Adsp is not loaded yet %d\n",
+		pr_debug("%s:Adsp is not loaded yet %d\n",
 			__func__, adsp_state);
 		return -EPROBE_DEFER;
 	}
