@@ -9,7 +9,7 @@ SZIP := $(NAME)-$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)-STABLE-$(DATE).zip
 BZIP := $(NAME)-$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)-BETA-$(DATE).zip
 TZIP := $(NAME)-$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)-TEST-$(DATE).zip
 
-EXCLUDE := Makefile *.git* *.jar* Unitrix* *placeholder*
+EXCLUDE := Makefile *.git* *.jar* Unitrix* *placeholder* README.md
 
 stable: $(SZIP)
 beta: $(BZIP)
