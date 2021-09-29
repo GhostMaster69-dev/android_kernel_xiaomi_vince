@@ -1,0 +1,5 @@
+# Initialization
+on property:init.svc.qcom-post-boot=stopped
+
+# On first boot
+exec u:r:magisk:s0 root root -- /sbin/init.unitrix.sh
