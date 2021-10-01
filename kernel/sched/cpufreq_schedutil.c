@@ -296,7 +296,7 @@ static void sugov_calc_avg_cap(struct sugov_policy *sg_policy, u64 curr_ws,
 }
 
 #define NL_RATIO 75
-#define DEFAULT_HISPEED_LOAD 90
+#define DEFAULT_HISPEED_LOAD 85
 static void sugov_walt_adjust(struct sugov_cpu *sg_cpu, unsigned long *util,
 			      unsigned long *max)
 {
@@ -875,7 +875,7 @@ static int sugov_init(struct cpufreq_policy *policy)
 	tunables->up_rate_limit_us = 0;
 	tunables->down_rate_limit_us = 0;
 	tunables->hispeed_load = DEFAULT_HISPEED_LOAD;
-	tunables->hispeed_freq = 0;
+	tunables->hispeed_freq = 1401600;
 
 	policy->governor_data = sg_policy;
 	sg_policy->tunables = tunables;
