@@ -9,3 +9,7 @@ echo 0 > /sys/devices/system/cpu/cpufreq/schedutil/pl
 echo 0 > /sys/devices/system/cpu/cpufreq/schedutil/up_rate_limit_us
 echo 0 > /sys/devices/system/cpu/cpufreq/schedutil/down_rate_limit_us
 echo 652800 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+
+# 512 readahead KB for mmcblk0 and mmcblk1 io scheds
+echo 512 > /sys/block/mmcblk0/queue/read_ahead_kb 
+echo 512 > /sys/block/mmcblk1/queue/read_ahead_kb
