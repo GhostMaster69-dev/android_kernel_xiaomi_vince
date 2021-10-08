@@ -13,3 +13,7 @@ echo 652800 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 # 512 readahead KB for mmcblk0 and mmcblk1 io scheds
 echo 512 > /sys/block/mmcblk0/queue/read_ahead_kb 
 echo 512 > /sys/block/mmcblk1/queue/read_ahead_kb
+
+# Default IO Scheduler
+echo cfq > /sys/block/mmcblk0/queue/scheduler
+echo cfq > /sys/block/mmcblk1/queue/scheduler
