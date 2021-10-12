@@ -742,7 +742,7 @@ static void smi_work_func(struct work_struct *work)
 	input_event(client_data->input, EV_REL, REL_Z, data.z);
 	input_sync(client_data->input);
 
-	schedule_delayed_work(&client_data->work, delay);
+	queue_delayed_work(system_power_efficient_wq, &client_data->work, delay);
 }
 
 static ssize_t smi130_chip_id_show(struct device *dev,
@@ -1253,7 +1253,7 @@ static ssize_t smi130_enable_store(struct device *dev,
 		if (pre_enable == 0) {
 			smi130_set_acc_op_mode(client_data,
 							SMI_ACC_PM_NORMAL);
-			schedule_delayed_work(&client_data->work,
+			queue_delayed_work(system_power_efficient_wq, &client_data->work,
 			msecs_to_jiffies(atomic_read(&client_data->delay)));
 			atomic_set(&client_data->wkqueue_en, 1);
 		}

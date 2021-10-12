@@ -2657,7 +2657,7 @@ static irqreturn_t labibb_sc_err_handler(int irq, void *_labibb)
 					ktime_set(SC_ERR_COUNT_INTERVAL_SEC, 0),
 					HRTIMER_MODE_REL);
 		}
-		schedule_delayed_work(&labibb->sc_err_recovery_work,
+		queue_delayed_work(system_power_efficient_wq, &labibb->sc_err_recovery_work,
 				msecs_to_jiffies(SC_ERR_RECOVERY_DELAY_MS));
 	}
 

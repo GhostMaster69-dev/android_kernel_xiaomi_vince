@@ -645,7 +645,7 @@ static void smi_gyro_work_func(struct work_struct *work)
 	input_report_abs(client_data->input, ABS_Z, gyro_data.dataz);
 	input_sync(client_data->input);
 
-	schedule_delayed_work(&client_data->work, delay);
+	queue_delayed_work(system_power_efficient_wq, &client_data->work, delay);
 }
 
 static struct workqueue_struct *reportdata_wq;
@@ -1078,7 +1078,7 @@ static ssize_t smi_gyro_store_enable(struct device *dev,
 	mutex_lock(&client_data->mutex_enable);
 	if (data != client_data->enable) {
 		if (data) {
-			schedule_delayed_work(
+			queue_delayed_work(system_power_efficient_wq,
 					&client_data->work,
 					msecs_to_jiffies(atomic_read(
 							&client_data->delay)));

@@ -2226,7 +2226,7 @@ static int mdss_fb_blank_unblank(struct msm_fb_data_type *mfd)
 
 		/* Start the work thread to signal idle time */
 		if (mfd->idle_time)
-			schedule_delayed_work(&mfd->idle_notify_work,
+			queue_delayed_work(system_power_efficient_wq, &mfd->idle_notify_work,
 				msecs_to_jiffies(mfd->idle_time));
 	}
 
@@ -5519,7 +5519,7 @@ int mdss_prim_panel_fb_unblank(int timeout)
 			atomic_set(&prim_panel_is_on, true);
 			if (timeout > 0){
 				printk("SXF %s ,timeout  = %d\n",__func__,timeout);
-				schedule_delayed_work(&prim_panel_work, msecs_to_jiffies(timeout));
+				queue_delayed_work(system_power_efficient_wq, &prim_panel_work, msecs_to_jiffies(timeout));
 			}
 			else
 				__pm_relax(&prim_panel_wakelock);

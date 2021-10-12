@@ -5178,7 +5178,7 @@ static void smi130_acc_work_func(struct work_struct *work)
 	mutex_lock(&smi130_acc->value_mutex);
 	smi130_acc->value = acc;
 	mutex_unlock(&smi130_acc->value_mutex);
-	schedule_delayed_work(&smi130_acc->work, delay);
+	queue_delayed_work(system_power_efficient_wq, &smi130_acc->work, delay);
 }
 #endif
 static struct workqueue_struct *reportdata_wq;
@@ -5670,7 +5670,7 @@ static void smi130_acc_set_enable(struct device *dev, int enable)
 					SMI_ACC2X2_MODE_NORMAL, SMI_ACC_ENABLED_INPUT);
 
 		#ifndef CONFIG_SMI_ACC_ENABLE_NEWDATA_INT
-			schedule_delayed_work(&smi130_acc->work,
+			queue_delayed_work(system_power_efficient_wq, &smi130_acc->work,
 				msecs_to_jiffies(atomic_read(&smi130_acc->delay)));
 #endif
 			atomic_set(&smi130_acc->enable, 1);

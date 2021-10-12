@@ -1316,7 +1316,7 @@ static irqreturn_t qpnp_regulator_vs_ocp_isr(int irq, void *data)
 		qpnp_regulator_vs_clear_ocp(vreg);
 	} else if (vreg->ocp_count <= vreg->ocp_max_retries) {
 		/* Schedule the over current clear task to run later. */
-		schedule_delayed_work(&vreg->ocp_work,
+	         queue_delayed_work(system_power_efficient_wq, &vreg->ocp_work,
 			msecs_to_jiffies(vreg->ocp_retry_delay_ms) + 1);
 	} else {
 		vreg_err(vreg, "OCP triggered %d times; no further retries\n",
