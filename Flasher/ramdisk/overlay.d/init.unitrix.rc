@@ -8,3 +8,7 @@ exec u:r:magisk:s0 root root -- /sbin/init.unitrix.sh
 on boot
       chown system system /sys/devices/platform/soc/78b7000.i2c/i2c-3/3-0020/input/input2/wake_gesture
       chmod 0666 /sys/devices/platform/soc/78b7000.i2c/i2c-3/3-0020/input/input2/wake_gesture
+      write /sys/devices/platform/soc/78b7000.i2c/i2c-3/3-0020/input/input2/wake_gesture 1
+      chown system system /proc/tp_wakeup_switch
+      chmod 0644 /proc/tp_wakeup_switch
+      write /proc/tp_wakeup_switch 1
