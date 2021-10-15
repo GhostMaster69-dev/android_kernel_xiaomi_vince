@@ -1781,7 +1781,7 @@ VOS_STATUS hdd_softap_rx_packet_cbk( v_VOID_t *vosContext,
          if (!(VOS_PKT_PROTO_TYPE_ARP & proto_type) &&
              !(VOS_PKT_PROTO_TYPE_EAPOL & proto_type))
             hdd_log_ip_addr(skb);
-            pHddCtx->rx_wow_dump = false;
+	 pHddCtx->rx_wow_dump = false;
       }
 
       if (WLAN_RX_BCMC_STA_ID == pRxMetaInfo->ucDesSTAId)
