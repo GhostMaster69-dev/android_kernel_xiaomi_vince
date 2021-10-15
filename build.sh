@@ -16,7 +16,7 @@ export KERNEL_DIR=$(pwd)
 export KBUILD_BUILD_USER="Unitrix-Kernel"
 export GCC_COMPILE="no"
 export KBUILD_BUILD_HOST="Cosmic-Horizon"
-export KBUILD_COMPILER_STRING="Proton clang version 13.0.0"
+export KBUILD_COMPILER_STRING="Unitrix's Cosmic-Clang version 14.0.0"
 
 #==============================================================
 #===================== Function Definition ====================
@@ -75,10 +75,10 @@ function clone_tc() {
 [ -d ${TC_PATH} ] || mkdir ${TC_PATH}
 
 if [ "$GCC_COMPILE" == "no" ]; then
-	git clone --depth=1 https://github.com/kdrag0n/proton-clang.git ${TC_PATH}/clang
+	git clone --depth=1 https://github.com/GhostMaster69-dev/Cosmic-Clang.git ${TC_PATH}/clang
 	export PATH="${TC_PATH}/clang/bin:$PATH"
 	export STRIP="${TC_PATH}/clang/aarch64-linux-gnu/bin/strip"
-	export COMPILER="Kdrag0n's Proton Clang"
+	export COMPILER="Clang 14.0.0"
 else
 	git clone --depth=1 https://github.com/arter97/arm64-gcc ${TC_PATH}/gcc64
 	git clone --depth=1 https://github.com/arter97/arm32-gcc ${TC_PATH}/gcc32
