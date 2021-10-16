@@ -23,8 +23,9 @@
 #include <linux/irq.h>
 #include <linux/gpio.h>
 #include <linux/proc_fs.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/input/mt.h>
+#include <linux/pm_wakeup.h>
 
 #include <linux/of_gpio.h>
 #include <linux/of_irq.h>
@@ -42,6 +43,8 @@
 #endif
 
 #include "../../../video/fbdev/msm/mdss_dsi.h"
+
+#define WAKEUP_GESTURE 1
 
 #if NVT_TOUCH_ESD_PROTECT
 static struct delayed_work nvt_esd_check_work;
@@ -819,7 +822,7 @@ static int32_t nvt_flash_proc_init(void)
 #if WAKEUP_GESTURE
 
 
-static struct wakeup_source gestrue_wakelock;
+static struct wakeup_source gesture_wakelock;
 
 void nvt_ts_wakeup_gesture_report(uint8_t gesture_id)
 {
@@ -1099,7 +1102,7 @@ static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
 
 #if WAKEUP_GESTURE
 	if (bTouchIsAwake == 0) {
-		__pm_wakeup_event(&gestrue_wakelock, msecs_to_jiffies(5000));
+		__pm_wakeup_event(&gesture_wakelock, 5000);
 	}
 #endif
 
@@ -1293,7 +1296,7 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 	for (retry = 0; retry < (sizeof(gesture_key_array) / sizeof(gesture_key_array[0])); retry++) {
 		input_set_capability(ts->input_dev, EV_KEY, gesture_key_array[retry]);
 	}
-	wakeup_source_init(&gestrue_wakelock, "poll-wake-lock");
+	wakeup_source_init(&gesture_wakelock, "poll-wake-lock");
 	ts->input_dev->event = NVT_gesture_switch;
 
 #endif
@@ -1392,9 +1395,6 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 #endif
 
 	bTouchIsAwake = 1;
-
-	NVT_gesture_func_on = true;
-
 	NVT_LOG("end\n");
 
 	mutex_lock(&ts->lock);
