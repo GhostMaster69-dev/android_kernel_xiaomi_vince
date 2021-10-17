@@ -618,7 +618,11 @@ static int sugov_init(struct cpufreq_policy *policy)
 		goto stop_kthread;
 	}
 
+#ifdef CONFIG_SCHED_WALT
+	tunables->rate_limit_us = 0;
+#else
 	tunables->rate_limit_us = LATENCY_MULTIPLIER;
+#endif
 	lat = policy->cpuinfo.transition_latency / NSEC_PER_USEC;
 	if (lat)
 		tunables->rate_limit_us *= lat;
