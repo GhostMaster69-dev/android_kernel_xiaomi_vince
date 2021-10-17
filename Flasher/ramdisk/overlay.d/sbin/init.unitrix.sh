@@ -4,8 +4,7 @@
 echo 1 > /sys/devices/system/cpu/cpu0/online
 echo "schedutil" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 echo 0 > /sys/devices/system/cpu/cpufreq/schedutil/iowait_boost_enable
-echo 0 > /sys/devices/system/cpu/cpufreq/schedutil/up_rate_limit_us
-echo 0 > /sys/devices/system/cpu/cpufreq/schedutil/down_rate_limit_us
+echo 0 > /sys/devices/system/cpu/cpufreq/schedutil/rate_limit_us
 echo 652800 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
 # 512 readahead KB for mmcblk0 and mmcblk1 io scheds
