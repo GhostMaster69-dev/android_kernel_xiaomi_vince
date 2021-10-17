@@ -4,6 +4,10 @@ on property:init.svc.qcom-post-boot=stopped
 # On first boot
 exec u:r:magisk:s0 root root -- /sbin/init.unitrix.sh
 
+# If bfq is set by default by prop
+on property:persist.sys.io.scheduler=bfq
+    setprop sys.io.scheduler cfq
+
 # DT2W
 on boot
       chown system system /sys/devices/platform/soc/78b7000.i2c/i2c-3/3-0020/input/input2/wake_gesture
