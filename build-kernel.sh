@@ -5,10 +5,12 @@
 # Copyright (C) 2021 GhostMaster69-dev
 #
 
+###############################################################
+#==================== Unitrix-Kernel ==========================
+###############################################################
 export DEVICE="VINCE"
 export CONFIG="vince-perf_defconfig"
-export CHANNEL_ID="$ID"
-export TELEGRAM_TOKEN="$BOT_API_KEY"
+export CHANNEL_ID="-1001292142581"
 export TC_PATH="$HOME/toolchains"
 export ZIP_DIR="$(pwd)/Flasher"
 export IS_MIUI="no"
@@ -16,13 +18,27 @@ export KERNEL_DIR=$(pwd)
 export KBUILD_BUILD_USER="Unitrix-Kernel"
 export GCC_COMPILE="no"
 export KBUILD_BUILD_HOST="Cosmic-Horizon"
-export KBUILD_COMPILER_STRING="Unitrix's Cosmic-Clang version 14.0.0"
+export KBUILD_COMPILER_STRING="Cosmic clang version 14.0.0"
+###############################################################
+#==================== Unitrix-Kernel ==========================
+###############################################################
 
-#==============================================================
-#===================== Function Definition ====================
-#==============================================================
+###############################################################
+#===================== Telegram Bot API Token =================
+###############################################################
+
+# Ask TG Bot Token
+if [[ -z ${TELEGRAM_TOKEN} ]]; then
+    echo -n "Plox,Give Me Your TG Bot Token:"
+    read -r tg_token
+    TELEGRAM_TOKEN="${tg_token}"
+fi
+
+###############################################################
+#==================== Function Definition =====================
+###############################################################
 #======================= Telegram Start =======================
-#==============================================================
+###############################################################
 
 # Upload buildlog to group
 tg_erlog()
@@ -64,21 +80,21 @@ function error_sticker() {
         -d chat_id=$CHANNEL_ID
 }
 
-#==============================================================
+###############################################################
 #======================= Telegram End =========================
-#==============================================================
+###############################################################
 #========================= Clone TC ===========================
 #======================== & AnyKernel =========================
-#==============================================================
+###############################################################
 
 function clone_tc() {
 [ -d ${TC_PATH} ] || mkdir ${TC_PATH}
 
 if [ "$GCC_COMPILE" == "no" ]; then
-	git clone --depth=1 https://github.com/GhostMaster69-dev/Cosmic-Clang.git ${TC_PATH}/clang
+	git clone -b main --depth=1 https://gitlab.com/GhostMaster69-dev/Cosmic-Clang.git ${TC_PATH}/clang
 	export PATH="${TC_PATH}/clang/bin:$PATH"
 	export STRIP="${TC_PATH}/clang/aarch64-linux-gnu/bin/strip"
-	export COMPILER="Clang 14.0.0"
+	export COMPILER="Cosmic clang 14.0.0"
 else
 	git clone --depth=1 https://github.com/arter97/arm64-gcc ${TC_PATH}/gcc64
 	git clone --depth=1 https://github.com/arter97/arm32-gcc ${TC_PATH}/gcc32
@@ -89,10 +105,10 @@ fi
 
 }
 
-#==============================================================
+###############################################################
 #=========================== Make =============================
 #========================== Kernel ============================
-#==============================================================
+###############################################################
 
 build_kernel() {
 DATE=`date`
@@ -104,6 +120,7 @@ if [ "$GCC_COMPILE" == "no" ]; then
 			      ARCH=arm64 \
 			      CC=clang \
 			      AR=llvm-ar \
+			      AS=llvm-as \
 			      NM=llvm-nm \
 			      LD=ld.lld \
 			      OBJCOPY=llvm-objcopy \
@@ -111,6 +128,12 @@ if [ "$GCC_COMPILE" == "no" ]; then
 			      OBJSIZE=llvm-size \
 			      READELF=llvm-readelf \
 			      STRIP=llvm-strip \
+			      HOSTCC=clang \
+			      HOSTCXX=clang++ \
+			      HOSTAR=llvm-ar \
+			      HOSTAS=llvm-as \
+			      HOSTNM=llvm-nm \
+			      HOSTLD=ld.lld \
 			      CROSS_COMPILE=aarch64-linux-gnu- \
 			      CROSS_COMPILE_ARM32=arm-linux-gnueabi- |& tee -a $HOME/build/build${BUILD}.txt
 else
@@ -124,9 +147,9 @@ BUILD_END=$(date +"%s")
 DIFF=$(($BUILD_END - $BUILD_START))
 }
 
-#==============================================================
+###############################################################
 #==================== Make Flashable Zip ======================
-#==============================================================
+###############################################################
 
 function make_flashable() {
 
@@ -152,7 +175,11 @@ make clean &>/dev/null
 cp $KERN_IMG $ZIP_DIR/zImage
 if [ "$BRANCH" == "stable" ]; then
 	make stable &>/dev/null
+elif [ "$BRANCH" == "stable-perf" ]; then
+	make stable &>/dev/null
 elif [ "$BRANCH" == "beta" ]; then
+	make beta &>/dev/null
+elif [ "$BRANCH" == "beta-perf" ]; then
 	make beta &>/dev/null
 else
 	make test &>/dev/null
@@ -162,9 +189,9 @@ tg_pushzip
 
 }
 
-#==============================================================
+###############################################################
 #========================= Build Log ==========================
-#==============================================================
+###############################################################
 
 # Credits: @madeofgreat
 BTXT="$HOME/build/buildno.txt" #BTXT is Build number TeXT
@@ -178,10 +205,10 @@ BUILD=$(cat $BTXT)
 BUILD=$(($BUILD + 1))
 echo ${BUILD} > $BTXT
 
-#==============================================================
+###############################################################
 #===================== Random sticker =========================
 #==================== for build error =========================
-#==============================================================
+###############################################################
 
 stick=$(($RANDOM % 5))
 
@@ -197,10 +224,10 @@ elif [ "$stick" == "4" ];then
 	STICKER="CAACAgUAAxkBAAMUXveDrb4guQZSu7mP7ZptE4547PsAAugAA_scAAFXWZ-1a2wWKUcaBA"
 fi
 
-#==============================================================
+###############################################################
 #===================== End of function ========================
 #======================= definition ===========================
-#==============================================================
+###############################################################
 
 clone_tc
 

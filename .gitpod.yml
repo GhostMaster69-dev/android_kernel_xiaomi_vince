@@ -1,0 +1,9 @@
+# Commands to start on workspace startup
+ tasks:
+# Required and Additional Packages Ubuntu 20.04 and 21.04
+   - init: sudo apt-get update && sudo apt-get -o Dpkg::Options::='--force-confold' -fuy dist-upgrade && sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install bc binutils-dev bison ca-certificates ccache clang cmake curl zip file flex gcc g++ git libelf-dev libssl-dev make cmake patchelf ninja-build python3 texinfo tmate u-boot-tools xz-utils zlib1g-dev gperf libsdl1.2-dev squashfs-tools build-essential lib32ncurses-dev zlib1g-dev openjdk-8-jre openjdk-8-jdk pngcrush schedtool libxml2 libxml2-utils xsltproc lzop libc6-dev schedtool g++-multilib lib32z1-dev lib32ncurses-dev lib32readline-dev gcc-multilib maven w3m ncftp python3 default-jdk libsdl1.2-dev libwxgtk3.0-gtk3-dev
+     command: bash build-kernel.sh
+# Ports to expose on workspace startup
+ ports:
+   - port: 8080
+     onOpen: open-preview
