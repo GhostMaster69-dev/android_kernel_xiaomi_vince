@@ -10,7 +10,6 @@
 ###############################################################
 export DEVICE="VINCE"
 export CONFIG="vince-perf_defconfig"
-export CHANNEL_ID="-1001292142581"
 export TC_PATH="$HOME/toolchains"
 export ZIP_DIR="$(pwd)/Flasher"
 export IS_MIUI="no"
@@ -26,10 +25,19 @@ export KBUILD_COMPILER_STRING="Cosmic clang version 14.0.0"
 ###############################################################
 #===================== Telegram Bot API Token =================
 ###############################################################
+#===================== Telegram Channel ID ====================
+###############################################################
+
+# Ask TG Channel ID
+if [[ -z ${CHANNEL_ID} ]]; then
+    echo -n "Plox,Give Me Your TG Channel/Group ID:"
+    read -r tg_channel_id
+    CHANNEL_ID="${tg_channel_id}"
+fi
 
 # Ask TG Bot Token
 if [[ -z ${TELEGRAM_TOKEN} ]]; then
-    echo -n "Plox,Give Me Your TG Bot Token:"
+    echo -n "Plox,Give Me Your TG Bot API Token:"
     read -r tg_token
     TELEGRAM_TOKEN="${tg_token}"
 fi
