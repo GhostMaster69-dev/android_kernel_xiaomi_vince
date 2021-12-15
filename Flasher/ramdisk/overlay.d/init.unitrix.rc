@@ -16,3 +16,7 @@ on boot
       chown system system /proc/tp_wakeup_switch
       chmod 0644 /proc/tp_wakeup_switch
       write /proc/tp_wakeup_switch 1
+
+# ebpf support
+on init
+      setprop ro.kernel.ebpf.supported true
