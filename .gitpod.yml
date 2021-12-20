@@ -1,9 +1,10 @@
-# Commands to start on workspace startup
+# List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
  tasks:
 # Required and Additional Packages Ubuntu 20.04 and 21.04
-   - init: sudo apt-get update && sudo apt-get -o Dpkg::Options::='--force-confold' -fuy dist-upgrade && sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install bc binutils-dev bison ca-certificates ccache clang cmake curl zip file flex gcc g++ git libelf-dev libssl-dev make cmake patchelf ninja-build python3 texinfo tmate u-boot-tools xz-utils zlib1g-dev gperf libsdl1.2-dev squashfs-tools build-essential lib32ncurses-dev zlib1g-dev openjdk-8-jre openjdk-8-jdk pngcrush schedtool libxml2 libxml2-utils xsltproc lzop libc6-dev schedtool g++-multilib lib32z1-dev lib32ncurses-dev lib32readline-dev gcc-multilib maven w3m ncftp python3 default-jdk libsdl1.2-dev libwxgtk3.0-gtk3-dev
+   - init: sudo apt-get update && sudo apt-get -o Dpkg::Options::='--force-confold' -fuy dist-upgrade && sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install bc bison ninja-build build-essential flex libelf-dev libssl-dev texinfo tmate xz-utils zlib1g-dev # runs during prebuild
      command: bash build-kernel.sh
-# Ports to expose on workspace startup
+
+# List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
  ports:
-   - port: 8080
+   - port: 3000
      onOpen: open-preview
