@@ -111,7 +111,9 @@ struct msm_gfx_ldo {
 	struct regulator_dev	*rdev;
 	struct regulator	*vdd_cx;
 	struct regulator	*mem_acc_vreg;
+#ifdef CONFIG_DEBUG_FS
 	struct dentry		*debugfs;
+#endif
 
 	u32			num_corners;
 	u32			num_ldo_corners;
@@ -1301,6 +1303,7 @@ static int msm_gfx_ldo_target_init(struct msm_gfx_ldo *ldo_vreg)
 	return 0;
 }
 
+#ifdef CONFIG_DEBUG_FS
 static int debugfs_ldo_mode_disable_set(void *data, u64 val)
 {
 	struct msm_gfx_ldo *ldo_vreg = data;
@@ -1494,6 +1497,7 @@ static void msm_gfx_ldo_debugfs_remove(struct msm_gfx_ldo *ldo_vreg)
 {
 	debugfs_remove_recursive(ldo_vreg->debugfs);
 }
+#endif
 
 static int msm_gfx_ldo_corner_config_init(struct msm_gfx_ldo *ldo_vreg,
 		struct platform_device *pdev)
@@ -1634,7 +1638,9 @@ static int msm_gfx_ldo_probe(struct platform_device *pdev)
 		return rc;
 	}
 
+#ifdef CONFIG_DEBUG_FS
 	msm_gfx_ldo_debugfs_init(ldo_vreg);
+#endif
 
 	return 0;
 }
@@ -1645,7 +1651,9 @@ static int msm_gfx_ldo_remove(struct platform_device *pdev)
 
 	regulator_unregister(ldo_vreg->rdev);
 
+#ifdef CONFIG_DEBUG_FS
 	msm_gfx_ldo_debugfs_remove(ldo_vreg);
+#endif
 
 	return 0;
 }
