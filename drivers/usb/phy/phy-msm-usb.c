@@ -1841,7 +1841,7 @@ skip_phy_resume:
 
 	if (motg->host_bus_suspend) {
 		usb_hcd_resume_root_hub(hcd);
-		schedule_delayed_work(&motg->perf_vote_work,
+		queue_delayed_work(system_power_efficient_wq, &motg->perf_vote_work,
 			msecs_to_jiffies(1000 * PM_QOS_SAMPLE_SEC));
 	}
 
@@ -2032,7 +2032,7 @@ static void msm_otg_perf_vote_work(struct work_struct *w)
 	pr_debug("%s: in_perf_mode:%u, interrupts in last sample:%u\n",
 		 __func__, in_perf_mode, curr_sample_int_count);
 
-	schedule_delayed_work(&motg->perf_vote_work,
+	queue_delayed_work(system_power_efficient_wq, &motg->perf_vote_work,
 			msecs_to_jiffies(1000 * PM_QOS_SAMPLE_SEC));
 }
 
@@ -2076,7 +2076,7 @@ static void msm_otg_start_host(struct usb_otg *otg, int on)
 				PM_QOS_CPU_DMA_LATENCY, PM_QOS_DEFAULT_VALUE);
 		/* start in perf mode for better performance initially */
 		msm_otg_perf_vote_update(motg, true);
-		schedule_delayed_work(&motg->perf_vote_work,
+		queue_delayed_work(system_power_efficient_wq, &motg->perf_vote_work,
 				msecs_to_jiffies(1000 * PM_QOS_SAMPLE_SEC));
 	} else {
 		dev_dbg(otg->usb_phy->dev, "host off\n");

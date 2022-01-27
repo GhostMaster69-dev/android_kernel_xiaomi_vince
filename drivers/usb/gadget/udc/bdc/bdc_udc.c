@@ -175,7 +175,7 @@ static void bdc_func_wake_timer(struct work_struct *work)
 		dev_dbg(bdc->dev, "FUNC_WAKE_ISSUED FLAG IS STILL SET\n");
 		/* flag is still set, so again send func wake */
 		bdc_function_wake_fh(bdc, 0);
-		schedule_delayed_work(&bdc->func_wake_notify,
+		queue_delayed_work(system_power_efficient_wq, &bdc->func_wake_notify,
 						msecs_to_jiffies(BDC_TNOTIFY));
 	}
 	spin_unlock_irqrestore(&bdc->lock, flags);
@@ -212,7 +212,7 @@ static void handle_link_state_change(struct bdc *bdc, u32 uspc)
 				 * TNotification secs until host initiates
 				 * transfer to BDC, USB3 spec Table 8.13
 				*/
-				schedule_delayed_work(
+				queue_delayed_work(system_power_efficient_wq, 
 						&bdc->func_wake_notify,
 						msecs_to_jiffies(BDC_TNOTIFY));
 				dev_dbg(bdc->dev, "sched func_wake_notify\n");

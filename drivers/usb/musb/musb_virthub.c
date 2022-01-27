@@ -138,7 +138,7 @@ int musb_port_suspend(struct musb *musb, bool do_suspend)
 
 		/* later, GetPortStatus will stop RESUME signaling */
 		musb->port1_status |= MUSB_PORT_STAT_RESUME;
-		schedule_delayed_work(&musb->finish_resume_work,
+		queue_delayed_work(system_power_efficient_wq, &musb->finish_resume_work,
 				      msecs_to_jiffies(USB_RESUME_TIMEOUT));
 	}
 	return 0;
@@ -175,7 +175,7 @@ void musb_port_reset(struct musb *musb, bool do_reset)
 
 			if (musb->rh_timer > 0 && remain > 0) {
 				/* take into account the minimum delay after resume */
-				schedule_delayed_work(
+				queue_delayed_work(system_power_efficient_wq, 
 					&musb->deassert_reset_work, remain);
 				return;
 			}
@@ -184,7 +184,7 @@ void musb_port_reset(struct musb *musb, bool do_reset)
 				    power & ~MUSB_POWER_RESUME);
 
 			/* Give the core 1 ms to clear MUSB_POWER_RESUME */
-			schedule_delayed_work(&musb->deassert_reset_work,
+			queue_delayed_work(system_power_efficient_wq, &musb->deassert_reset_work,
 					      msecs_to_jiffies(1));
 			return;
 		}
@@ -195,7 +195,7 @@ void musb_port_reset(struct musb *musb, bool do_reset)
 
 		musb->port1_status |= USB_PORT_STAT_RESET;
 		musb->port1_status &= ~USB_PORT_STAT_ENABLE;
-		schedule_delayed_work(&musb->deassert_reset_work,
+		queue_delayed_work(system_power_efficient_wq, &musb->deassert_reset_work,
 				      msecs_to_jiffies(50));
 	} else {
 		musb_dbg(musb, "root port reset stopped");

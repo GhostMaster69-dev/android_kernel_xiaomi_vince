@@ -1875,7 +1875,7 @@ static int msm_dwc3_usbdev_notify(struct notifier_block *self,
 	}
 
 	mdwc->hc_died = true;
-	schedule_delayed_work(&mdwc->sm_work, 0);
+	queue_delayed_work(system_power_efficient_wq, &mdwc->sm_work, 0);
 	return 0;
 }
 
@@ -2701,7 +2701,7 @@ static int dwc3_msm_suspend(struct dwc3_msm *mdwc, bool hibernation)
 
 	/* kick_sm if it is waiting for lpm sequence to finish */
 	if (test_and_clear_bit(WAIT_FOR_LPM, &mdwc->inputs))
-		schedule_delayed_work(&mdwc->sm_work, 0);
+		queue_delayed_work(system_power_efficient_wq, &mdwc->sm_work, 0);
 
 	mutex_unlock(&mdwc->suspend_resume_mutex);
 
@@ -2872,7 +2872,7 @@ static int dwc3_msm_resume(struct dwc3_msm *mdwc)
 	dwc3_pwr_event_handler(mdwc);
 
 	if (pm_qos_request_active(&mdwc->pm_qos_req_dma))
-		schedule_delayed_work(&mdwc->perf_vote_work,
+		queue_delayed_work(system_power_efficient_wq, &mdwc->perf_vote_work,
 			msecs_to_jiffies(1000 * PM_QOS_SAMPLE_SEC));
 
 	dbg_event(0xFF, "Ctl Res", atomic_read(&dwc->in_lpm));
@@ -2915,7 +2915,7 @@ static void dwc3_ext_event_notify(struct dwc3_msm *mdwc)
 		clear_bit(B_SUSPEND, &mdwc->inputs);
 	}
 
-	schedule_delayed_work(&mdwc->sm_work, 0);
+	queue_delayed_work(system_power_efficient_wq, &mdwc->sm_work, 0);
 }
 
 static void dwc3_resume_work(struct work_struct *w)
@@ -3984,7 +3984,7 @@ static int dwc3_msm_probe(struct platform_device *pdev)
 		dwc3_msm_id_notifier(&mdwc->id_nb, true, mdwc->extcon_id);
 	else if (!pval.intval) {
 		/* USB cable is not connected */
-		schedule_delayed_work(&mdwc->sm_work, 0);
+		queue_delayed_work(system_power_efficient_wq, &mdwc->sm_work, 0);
 	} else {
 		if (pval.intval > 0)
 			dev_info(mdwc->dev, "charger detection in progress\n");
@@ -4214,7 +4214,7 @@ static void msm_dwc3_perf_vote_work(struct work_struct *w)
 
 	last_irq_cnt = dwc->irq_cnt;
 	msm_dwc3_perf_vote_update(mdwc, in_perf_mode);
-	schedule_delayed_work(&mdwc->perf_vote_work,
+	queue_delayed_work(system_power_efficient_wq, &mdwc->perf_vote_work,
 			msecs_to_jiffies(1000 * PM_QOS_SAMPLE_SEC));
 }
 
@@ -4344,7 +4344,7 @@ static int dwc3_otg_start_host(struct dwc3_msm *mdwc, int on)
 				PM_QOS_CPU_DMA_LATENCY, PM_QOS_DEFAULT_VALUE);
 		/* start in perf mode for better performance initially */
 		msm_dwc3_perf_vote_update(mdwc, true);
-		schedule_delayed_work(&mdwc->perf_vote_work,
+		queue_delayed_work(system_power_efficient_wq, &mdwc->perf_vote_work,
 				msecs_to_jiffies(1000 * PM_QOS_SAMPLE_SEC));
 	} else {
 		dev_dbg(mdwc->dev, "%s: turn off host\n", __func__);
@@ -4446,7 +4446,7 @@ static int dwc3_otg_start_peripheral(struct dwc3_msm *mdwc, int on)
 				PM_QOS_CPU_DMA_LATENCY, PM_QOS_DEFAULT_VALUE);
 		/* start in perf mode for better performance initially */
 		msm_dwc3_perf_vote_update(mdwc, true);
-		schedule_delayed_work(&mdwc->perf_vote_work,
+		queue_delayed_work(system_power_efficient_wq, &mdwc->perf_vote_work,
 				msecs_to_jiffies(1000 * PM_QOS_SAMPLE_SEC));
 		if (dwc3_gadget_imod_val > 0) {
 			dwc3_msm_write_reg(mdwc->base, USEC_CNT, 0x7D);
@@ -4530,7 +4530,7 @@ static int dwc3_restart_usb_host_mode(struct notifier_block *nb,
 
 	dwc->maximum_speed = usb_speed;
 	mdwc->drd_state = DRD_STATE_IDLE;
-	schedule_delayed_work(&mdwc->sm_work, 0);
+	queue_delayed_work(system_power_efficient_wq, &mdwc->sm_work, 0);
 	dbg_event(0xFF, "complete_host_change", dwc->maximum_speed);
 err:
 	return ret;
@@ -4785,7 +4785,7 @@ static void dwc3_otg_sm_work(struct work_struct *w)
 	}
 
 	if (work)
-		schedule_delayed_work(&mdwc->sm_work, delay);
+		queue_delayed_work(system_power_efficient_wq, &mdwc->sm_work, delay);
 
 ret:
 	return;

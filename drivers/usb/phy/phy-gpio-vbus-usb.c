@@ -166,7 +166,7 @@ static irqreturn_t gpio_vbus_irq(int irq, void *data)
 		otg->gadget ? otg->gadget->name : "none");
 
 	if (otg->gadget)
-		schedule_delayed_work(&gpio_vbus->work, msecs_to_jiffies(100));
+		queue_delayed_work(system_power_efficient_wq, &gpio_vbus->work, msecs_to_jiffies(100));
 
 	return IRQ_HANDLED;
 }

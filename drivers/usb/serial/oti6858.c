@@ -203,7 +203,7 @@ static void setup_line(struct work_struct *work)
 	new_setup = kmalloc(OTI6858_CTRL_PKT_SIZE, GFP_KERNEL);
 	if (!new_setup) {
 		/* we will try again */
-		schedule_delayed_work(&priv->delayed_setup_work,
+		queue_delayed_work(system_power_efficient_wq, &priv->delayed_setup_work,
 						msecs_to_jiffies(2));
 		return;
 	}
@@ -220,7 +220,7 @@ static void setup_line(struct work_struct *work)
 		dev_err(&port->dev, "%s(): error reading status\n", __func__);
 		kfree(new_setup);
 		/* we will try again */
-		schedule_delayed_work(&priv->delayed_setup_work,
+		queue_delayed_work(system_power_efficient_wq, &priv->delayed_setup_work,
 							msecs_to_jiffies(2));
 		return;
 	}
@@ -271,7 +271,7 @@ static void send_data(struct work_struct *work)
 	spin_lock_irqsave(&priv->lock, flags);
 	if (priv->flags.write_urb_in_use) {
 		spin_unlock_irqrestore(&priv->lock, flags);
-		schedule_delayed_work(&priv->delayed_write_work,
+		queue_delayed_work(system_power_efficient_wq, &priv->delayed_write_work,
 						msecs_to_jiffies(2));
 		return;
 	}
@@ -694,7 +694,7 @@ static void oti6858_read_int_callback(struct urb *urb)
 					priv->setup_done = 0;
 					resubmit = 0;
 					dev_dbg(&port->dev, "%s(): scheduling setup_line()\n", __func__);
-					schedule_delayed_work(&priv->delayed_setup_work, 0);
+					queue_delayed_work(system_power_efficient_wq, &priv->delayed_setup_work, 0);
 				}
 			}
 		} else {
@@ -708,7 +708,7 @@ static void oti6858_read_int_callback(struct urb *urb)
 					priv->setup_done = 0;
 					resubmit = 0;
 					dev_dbg(&port->dev, "%s(): scheduling setup_line()\n", __func__);
-					schedule_delayed_work(&priv->delayed_setup_work, 0);
+					queue_delayed_work(system_power_efficient_wq, &priv->delayed_setup_work, 0);
 				}
 			}
 		}
@@ -762,7 +762,7 @@ static void oti6858_read_int_callback(struct urb *urb)
 
 		spin_lock_irqsave(&priv->lock, flags);
 		if (priv->flags.write_urb_in_use == 0 && count != 0) {
-			schedule_delayed_work(&priv->delayed_write_work, 0);
+			queue_delayed_work(system_power_efficient_wq, &priv->delayed_write_work, 0);
 			resubmit = 0;
 		}
 		spin_unlock_irqrestore(&priv->lock, flags);

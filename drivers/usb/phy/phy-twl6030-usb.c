@@ -417,7 +417,7 @@ static int twl6030_usb_probe(struct platform_device *pdev)
 
 	twl->asleep = 0;
 	twl6030_enable_irq(twl);
-	schedule_delayed_work(&twl->get_status_work, HZ);
+	queue_delayed_work(system_power_efficient_wq, &twl->get_status_work, HZ);
 	dev_info(&pdev->dev, "Initialized TWL6030 USB module\n");
 
 	return 0;

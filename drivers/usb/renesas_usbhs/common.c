@@ -456,7 +456,7 @@ static int usbhsc_drvcllbck_notify_hotplug(struct platform_device *pdev)
 	 * To make sure safety context,
 	 * use workqueue for usbhs_notify_hotplug
 	 */
-	schedule_delayed_work(&priv->notify_hotplug_work,
+	queue_delayed_work(system_power_efficient_wq, &priv->notify_hotplug_work,
 			      msecs_to_jiffies(delay));
 	return 0;
 }

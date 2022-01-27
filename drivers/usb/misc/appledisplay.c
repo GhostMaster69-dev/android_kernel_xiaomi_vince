@@ -123,7 +123,7 @@ static void appledisplay_complete(struct urb *urb)
 	case ACD_BTN_BRIGHT_UP:
 	case ACD_BTN_BRIGHT_DOWN:
 		pdata->button_pressed = 1;
-		schedule_delayed_work(&pdata->work, 0);
+		queue_delayed_work(system_power_efficient_wq, &pdata->work, 0);
 		break;
 	case ACD_BTN_NONE:
 	default:
@@ -213,7 +213,7 @@ static void appledisplay_work(struct work_struct *work)
 
 	/* Poll again in about 125ms if there's still a button pressed */
 	if (pdata->button_pressed)
-		schedule_delayed_work(&pdata->work, HZ / 8);
+		queue_delayed_work(system_power_efficient_wq, &pdata->work, HZ / 8);
 }
 
 static int appledisplay_probe(struct usb_interface *iface,

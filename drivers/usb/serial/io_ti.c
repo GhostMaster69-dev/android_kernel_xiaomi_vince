@@ -2528,7 +2528,7 @@ static void edge_heartbeat_schedule(struct edgeport_serial *edge_serial)
 	if (!edge_serial->use_heartbeat)
 		return;
 
-	schedule_delayed_work(&edge_serial->heartbeat_work,
+	queue_delayed_work(system_power_efficient_wq, &edge_serial->heartbeat_work,
 			FW_HEARTBEAT_SECS * HZ);
 }
 

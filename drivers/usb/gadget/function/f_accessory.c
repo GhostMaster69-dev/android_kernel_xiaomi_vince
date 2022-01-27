@@ -962,7 +962,7 @@ int acc_ctrlrequest(struct usb_composite_dev *cdev,
 	if (b_requestType == (USB_DIR_OUT | USB_TYPE_VENDOR)) {
 		if (b_request == ACCESSORY_START) {
 			dev->start_requested = 1;
-			schedule_delayed_work(
+			queue_delayed_work(system_power_efficient_wq, 
 				&dev->start_work, msecs_to_jiffies(10));
 			value = 0;
 			cdev->req->complete = acc_complete_setup_noop;

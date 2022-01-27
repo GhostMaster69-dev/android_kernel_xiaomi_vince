@@ -1955,7 +1955,7 @@ static int _hardware_enqueue(struct ci13xxx_ep *mEp, struct ci13xxx_req *mReq)
 		}
 
 		usb_phy_set_suspend(udc->transceiver, 0);
-		schedule_delayed_work(&udc->rw_work, REMOTE_WAKEUP_DELAY);
+		queue_delayed_work(system_power_efficient_wq, &udc->rw_work, REMOTE_WAKEUP_DELAY);
 	}
 
 	if (!list_empty(&mEp->qh.queue)) {
@@ -3184,7 +3184,7 @@ static int ep_queue(struct usb_ep *ep, struct usb_request *req,
 		list_add_tail(&mReq->queue, &mEp->rw_queue);
 
 		udc->rw_pending = true;
-		schedule_delayed_work(&udc->rw_work,
+		queue_delayed_work(system_power_efficient_wq, &udc->rw_work,
 				      REMOTE_WAKEUP_DELAY);
 
 		retval = 0;

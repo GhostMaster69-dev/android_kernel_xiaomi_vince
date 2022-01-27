@@ -580,7 +580,7 @@ static int fsl_otg_set_host(struct usb_otg *otg, struct usb_bus *host)
 		 * so suspend the host after a short delay.
 		 */
 		otg_dev->host_working = 1;
-		schedule_delayed_work(&otg_dev->otg_event, 100);
+		queue_delayed_work(system_power_efficient_wq, &otg_dev->otg_event, 100);
 		return 0;
 	} else {
 		/* host driver going away */
@@ -754,7 +754,7 @@ irqreturn_t fsl_otg_isr(int irq, void *dev_id)
 			VDBG("ID int (ID is %d)\n", fsm->id);
 
 			if (fsm->id) {	/* switch to gadget */
-				schedule_delayed_work(
+				queue_delayed_work(system_power_efficient_wq, 
 					&((struct fsl_otg *)dev_id)->otg_event,
 					100);
 			} else {	/* switch to host */
