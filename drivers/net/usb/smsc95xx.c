@@ -666,7 +666,7 @@ static void check_carrier(struct work_struct *work)
 	else
 		set_carrier(dev, 0);
 
-	schedule_delayed_work(&pdata->carrier_check, CARRIER_CHECK_DELAY);
+	queue_delayed_work(system_power_efficient_wq, &pdata->carrier_check, CARRIER_CHECK_DELAY);
 }
 
 /* Enable or disable Tx & Rx checksum offload engines */
@@ -1320,7 +1320,7 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
 
 	pdata->dev = dev;
 	INIT_DELAYED_WORK(&pdata->carrier_check, check_carrier);
-	schedule_delayed_work(&pdata->carrier_check, CARRIER_CHECK_DELAY);
+	queue_delayed_work(system_power_efficient_wq, &pdata->carrier_check, CARRIER_CHECK_DELAY);
 
 	return 0;
 
@@ -1843,7 +1843,7 @@ done:
 		usbnet_resume(intf);
 
 	if (ret)
-		schedule_delayed_work(&pdata->carrier_check,
+		queue_delayed_work(system_power_efficient_wq, &pdata->carrier_check,
 				      CARRIER_CHECK_DELAY);
 
 	return ret;
@@ -1865,7 +1865,7 @@ static int smsc95xx_resume(struct usb_interface *intf)
 
 	/* do this first to ensure it's cleared even in error case */
 	pdata->suspend_flags = 0;
-	schedule_delayed_work(&pdata->carrier_check, CARRIER_CHECK_DELAY);
+	queue_delayed_work(system_power_efficient_wq, &pdata->carrier_check, CARRIER_CHECK_DELAY);
 
 	if (suspend_flags & SUSPEND_ALLMODES) {
 		/* clear wake-up sources */

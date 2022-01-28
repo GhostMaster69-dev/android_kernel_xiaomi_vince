@@ -860,7 +860,7 @@ static int __init msm_ipc_router_smd_xprt_init(void)
 
 	INIT_DELAYED_WORK(&ipc_router_smd_xprt_probe_work,
 					ipc_router_smd_xprt_probe_worker);
-	schedule_delayed_work(&ipc_router_smd_xprt_probe_work,
+	queue_delayed_work(system_power_efficient_wq, &ipc_router_smd_xprt_probe_work,
 			msecs_to_jiffies(IPC_ROUTER_SMD_XPRT_WAIT_TIMEOUT));
 	return 0;
 }
