@@ -1,7 +1,7 @@
 # List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
  tasks:
 # Required and Additional Packages Ubuntu 20.04 and 21.04
-   - init: sudo apt-get update && sudo apt-get -o Dpkg::Options::='--force-confold' -fuy dist-upgrade && sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install bc bison ninja-build build-essential flex libelf-dev libssl-dev texinfo tmate xz-utils zlib1g-dev # runs during prebuild
+   - init: sudo apt-get update && sudo apt-get -o Dpkg::Options::='--force-confold' -fuy dist-upgrade && sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install bc bison flex # runs during prebuild
      command: bash build-kernel.sh
 
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
