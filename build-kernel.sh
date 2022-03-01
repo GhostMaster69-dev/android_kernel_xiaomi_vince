@@ -12,7 +12,7 @@ export ZIP_DIR="$(pwd)/Flasher"
 export KERNEL_DIR=$(pwd)
 export KBUILD_BUILD_USER="Unitrix-Kernel"
 export KBUILD_BUILD_HOST="Cosmic-Horizon"
-export KBUILD_COMPILER_STRING="Cosmic clang version 14.0.0"
+export KBUILD_COMPILER_STRING="Cosmic clang version 15.0.0"
 
 # Ask Telegram Channel/Chat ID
 if [[ -z ${CHANNEL_ID} ]]; then
@@ -70,10 +70,10 @@ function error_sticker() {
 function clone_tc() {
 [ -d ${TC_PATH} ] || mkdir ${TC_PATH}
 
-	git clone -b main --depth=1 https://gitlab.com/GhostMaster69-dev/Cosmic-Clang.git ${TC_PATH}/clang
+	git clone -b master --depth=1 https://gitlab.com/GhostMaster69-dev/Cosmic-Clang.git ${TC_PATH}/clang
 	export PATH="${TC_PATH}/clang/bin:$PATH"
 	export STRIP="${TC_PATH}/clang/aarch64-linux-gnu/bin/strip"
-	export COMPILER="Cosmic clang 14.0.0"
+	export COMPILER="Cosmic clang 15.0.0"
 }
 
 # Make Kernel
