@@ -111,10 +111,12 @@ function make_flashable() {
 cd $ZIP_DIR
 make clean &>/dev/null
 cp $KERN_IMG $ZIP_DIR
-if [ "$BRANCH" == "stable" ]; then
-	make stable &>/dev/null
-else
+if [ "$BRANCH" == "test" ]; then
 	make test &>/dev/null
+elif [ "$BRANCH" == "beta" ]; then
+	make beta &>/dev/null
+else
+	make stable &>/dev/null
 fi
 ZIP=$(echo *.zip)
 tg_pushzip
