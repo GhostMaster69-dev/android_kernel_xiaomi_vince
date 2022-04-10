@@ -7,12 +7,14 @@
 
 export DEVICE="VINCE"
 export CONFIG="vince-perf_defconfig"
-export TC_PATH="$HOME/toolchains"
+export TC_PATH="$HOME/clang-cosmic"
 export ZIP_DIR="$(pwd)/Flasher"
 export KERNEL_DIR=$(pwd)
+export KBUILD_BUILD_VERSION="1"
 export KBUILD_BUILD_USER="Unitrix-Kernel"
 export KBUILD_BUILD_HOST="Cosmic-Horizon"
-export KBUILD_COMPILER_STRING="Cosmic clang version 15.0.0"
+export KBUILD_COMPILER_STRING="Cosmic clang version 15.0.0, LLD 15.0.0"
+export KBUILD_BUILD_TIMESTAMP="$(TZ='Asia/Kolkata' date)"
 
 # Ask Telegram Channel/Chat ID
 if [[ -z ${CHANNEL_ID} ]]; then
@@ -69,38 +71,53 @@ function error_sticker() {
 }
 function clone_tc() {
 [ -d ${TC_PATH} ] || mkdir ${TC_PATH}
-
-	git clone -b master --depth=1 https://gitlab.com/GhostMaster69-dev/Cosmic-Clang.git ${TC_PATH}/clang
-	export PATH="${TC_PATH}/clang/bin:$PATH"
-	export STRIP="${TC_PATH}/clang/aarch64-linux-gnu/bin/strip"
-	export COMPILER="Cosmic clang 15.0.0"
+git clone -b master --depth=1 https://gitlab.com/GhostMaster69-dev/Cosmic-Clang.git ${TC_PATH}
+PATH="${TC_PATH}/bin:$PATH"
+export COMPILER="$KBUILD_COMPILER_STRING"
 }
 
 # Make Kernel
 build_kernel() {
 DATE=`date`
 BUILD_START=$(date +"%s")
-make O=out ARCH=arm64 "$CONFIG"
-make -j$(nproc --all) O=out \
-	                      ARCH=arm64 \
-			      CC=clang \
-			      AR=llvm-ar \
-			      AS=llvm-as \
-			      LD=ld.lld \
-			      NM=llvm-nm \
-			      OBJCOPY=llvm-objcopy \
-			      OBJDUMP=llvm-objdump \
-			      OBJSIZE=llvm-size \
-			      READELF=llvm-readelf \
-			      STRIP=llvm-strip \
-			      HOSTCC=clang \
-			      HOSTCXX=clang++ \
-			      HOSTAR=llvm-ar \
-			      HOSTAS=llvm-as \
-			      HOSTNM=llvm-nm \
-			      HOSTLD=ld.lld \
-			      CROSS_COMPILE=aarch64-linux-gnu- \
-			      CROSS_COMPILE_ARM32=arm-linux-gnueabi- |& tee -a $HOME/build/build${BUILD}.txt
+make \
+    O=out \
+    ARCH=arm64 \
+    CC=clang \
+    AR=llvm-ar \
+    AS=llvm-as \
+    LD=ld.lld \
+    NM=llvm-nm \
+    OBJCOPY=llvm-objcopy \
+    OBJDUMP=llvm-objdump \
+    READELF=llvm-readelf \
+    OBJSIZE=llvm-size \
+    STRIP=llvm-strip \
+    HOSTCC=clang \
+    HOSTCXX=clang++ \
+    HOSTLD=ld.lld \
+    CLANG_TRIPLE=aarch64-linux-gnu- \
+    "$CONFIG"
+
+make -j$(nproc --all) \
+    O=out \
+    ARCH=arm64 \
+    CC=clang \
+    AR=llvm-ar \
+    AS=llvm-as \
+    LD=ld.lld \
+    NM=llvm-nm \
+    OBJCOPY=llvm-objcopy \
+    OBJDUMP=llvm-objdump \
+    OBJSIZE=llvm-size \
+    READELF=llvm-readelf \
+    STRIP=llvm-strip \
+    HOSTCC=clang \
+    HOSTCXX=clang++ \
+    HOSTLD=ld.lld \
+    CLANG_TRIPLE=aarch64-linux-gnu- \
+    CROSS_COMPILE=aarch64-linux-gnu- \
+    CROSS_COMPILE_ARM32=arm-linux-gnueabi- |& tee -a $HOME/build/build${BUILD}.txt
 
 BUILD_END=$(date +"%s")
 DIFF=$(($BUILD_END - $BUILD_START))
