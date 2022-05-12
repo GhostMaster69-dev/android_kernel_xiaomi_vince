@@ -1662,7 +1662,6 @@ CONFIG_CNSS_UTILS=y
 #
 # CONFIG_WAN is not set
 # CONFIG_ISDN is not set
-# CONFIG_NVM is not set
 
 #
 # Input device support
