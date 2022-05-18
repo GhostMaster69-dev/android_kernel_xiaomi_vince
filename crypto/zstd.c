@@ -21,8 +21,7 @@
 #include <linux/vmalloc.h>
 #include <linux/zstd.h>
 
-
-#define ZSTD_DEF_LEVEL	1
+#define ZSTD_DEF_LEVEL	2
 
 struct zstd_ctx {
 	zstd_cctx *cctx;
