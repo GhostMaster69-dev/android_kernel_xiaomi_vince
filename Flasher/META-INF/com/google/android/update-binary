@@ -479,7 +479,7 @@ ui_print "|========================================|";
 ui_print "|  Kernel         : Unitrix-Kernel       |";
 ui_print "|  Device         : Redmi 5 Plus         |";
 ui_print "|  Linux version  : 4.9                  |";
-ui_print "|  Compiler       : Cosmic clang v15.0.0 |";
+ui_print "|  Compiler       : Cosmic clang         |";
 ui_print "|  Maintainer     : GhostMaster69-dev    |";
 ui_print "|========================================|";
 ui_print "| AnyKernel3 by osm0sis @xda-developers. |";
