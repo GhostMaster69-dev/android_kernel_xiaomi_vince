@@ -736,6 +736,11 @@ lto-clang-flags	:= -flto -fvisibility=hidden
 # allow disabling only clang LTO where needed
 DISABLE_LTO_CLANG := -fno-lto -fvisibility=default
 export DISABLE_LTO_CLANG
+
+# Set O3 optimization level for LTO
+KBUILD_LDFLAGS	+= --plugin-opt=O3 --strip-debug
+else
+KBUILD_LDFLAGS	+= -O3 --strip-debug
 endif
 
 ifdef CONFIG_LTO
@@ -885,16 +890,6 @@ endif
 # These warnings generated too much noise in a regular build.
 # Use make W=1 to enable them (see scripts/Makefile.extrawarn)
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
-
-ifeq ($(ld-name),lld)
-ifdef CONFIG_LTO_CLANG
-KBUILD_LDFLAGS += --lto-O3
-LDFLAGS += --lto-O3
-else
-KBUILD_LDFLAGS += -O3
-LDFLAGS += -O3
-endif
-endif
 
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
 ifdef CONFIG_FRAME_POINTER
