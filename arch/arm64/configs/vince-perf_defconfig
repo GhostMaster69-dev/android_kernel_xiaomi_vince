@@ -1944,6 +1944,7 @@ CONFIG_MSM_SMD_PKT=y
 # CONFIG_XILLYBUS is not set
 CONFIG_MSM_ADSPRPC=y
 # CONFIG_MSM_RDBG is not set
+# CONFIG_RANDOM_TRUST_BOOTLOADER is not set
 
 #
 # I2C support
@@ -4577,6 +4578,7 @@ CONFIG_SCHED_INFO=y
 # Lock Debugging (spinlocks, mutexes, etc...)
 #
 CONFIG_STACKTRACE=y
+# CONFIG_WARN_ALL_UNSEEDED_RANDOM is not set
 CONFIG_HAVE_DEBUG_BUGVERBOSE=y
 
 #
