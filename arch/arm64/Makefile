@@ -58,7 +58,11 @@ $(warning LSE atomics not supported by binutils)
 endif
 
 ifeq ($(CONFIG_COMPAT_VDSO), y)
+  ifneq ($(LLVM),)
+  CROSS_COMPILE_ARM32 := arm-linux-gnueabi-
+  else
   CROSS_COMPILE_ARM32 ?= $(CONFIG_CROSS_COMPILE_ARM32:"%"=%)
+  endif
 
   # Check that the user has provided a valid prefix for the 32-bit toolchain.
   # To prevent selecting the system $(cc-name) by default, the prefix is not
