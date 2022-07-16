@@ -296,6 +296,8 @@ module_param_named(power_efficient, wq_power_efficient, bool, 0644);
 
 bool wq_online;				/* can kworkers be created yet? */
 
+bool wq_online;				/* can kworkers be created yet? */
+
 static bool wq_numa_enabled;		/* unbound NUMA affinity enabled */
 
 /* buf for wq_update_unbound_numa_attrs(), protected by CPU hotplug exclusion */
