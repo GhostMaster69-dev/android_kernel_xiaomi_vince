@@ -500,7 +500,8 @@ config THIN_ARCHIVES
 	  instead of ld -r to create the built-in.o files.
 
 config LD_DEAD_CODE_DATA_ELIMINATION
-	bool
+	bool "Dead code and data elimination (EXPERIMENTAL)"
+	select LD_GOLD
 	help
 	  Select this if the architecture wants to do dead code and
 	  data elimination with the linker by compiling with
