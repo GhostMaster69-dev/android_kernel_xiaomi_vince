@@ -96,7 +96,6 @@ make \
     HOSTCC=clang \
     HOSTCXX=clang++ \
     HOSTLD=ld.lld \
-    CLANG_TRIPLE=aarch64-linux-gnu- \
     "$CONFIG"
 
 make -j$(nproc --all) \
@@ -115,7 +114,6 @@ make -j$(nproc --all) \
     HOSTCC=clang \
     HOSTCXX=clang++ \
     HOSTLD=ld.lld \
-    CLANG_TRIPLE=aarch64-linux-gnu- \
     CROSS_COMPILE=aarch64-linux-gnu- \
     CROSS_COMPILE_ARM32=arm-linux-gnueabi- |& tee -a $HOME/build/build${BUILD}.txt
 
