@@ -992,7 +992,7 @@ out:
 	return result;
 }
 
-/* There is a problem... egrep and some other silly tools do:
+/* There is a problem... grep -E and some other silly tools do:
 	x = mmap(NULL, MAP_PRIVATE, PROT_READ|PROT_WRITE, <ncpfs fd>, 32768);
 	read(<ncpfs fd>, x, 32768);
    Now copying read result by copy_to_user causes pagefault. This pagefault

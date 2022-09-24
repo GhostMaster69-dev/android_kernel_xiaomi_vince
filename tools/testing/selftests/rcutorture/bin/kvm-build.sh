@@ -62,10 +62,10 @@ fi
 ncpus=`cpus2use.sh`
 make O=$builddir -j$ncpus $TORTURE_KMAKE_ARG > $builddir/Make.out 2>&1
 retval=$?
-if test $retval -ne 0 || grep "rcu[^/]*": < $builddir/Make.out | egrep -q "Stop|Error|error:|warning:" || egrep -q "Stop|Error|error:" < $builddir/Make.out
+if test $retval -ne 0 || grep "rcu[^/]*": < $builddir/Make.out | grep -E -q "Stop|Error|error:|warning:" || grep -E -q "Stop|Error|error:" < $builddir/Make.out
 then
 	echo Kernel build error
-	egrep "Stop|Error|error:|warning:" < $builddir/Make.out
+	grep -E "Stop|Error|error:|warning:" < $builddir/Make.out
 	echo Run aborted.
 	exit 3
 fi

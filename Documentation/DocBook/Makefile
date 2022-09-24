@@ -169,7 +169,7 @@ silent_gen_aux_xml = :
 %.aux.xml: %.xml
 	@$($(quiet)gen_aux_xml)
 	@rm -rf $@
-	@(cat $< | egrep "^<refentry id" | egrep -o "\".*\"" | cut -f 2 -d \" > $<.db)
+	@(cat $< | grep -E "^<refentry id" | grep -E -o "\".*\"" | cut -f 2 -d \" > $<.db)
 	@$(KERNELDOCXMLREF) -db $<.db $< > $@
 .PRECIOUS: %.aux.xml
 
