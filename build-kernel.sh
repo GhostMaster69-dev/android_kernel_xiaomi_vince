@@ -79,7 +79,7 @@ export COMPILER=$(${TC_PATH}/bin/clang -v 2>&1 | grep ' version ' | sed 's/([^)]
 build_kernel() {
 DATE=`date`
 BUILD_START=$(date +"%s")
-make "$CONFIG" && make LLVM=1 -j$(nproc --all) |& tee -a $HOME/build/build${BUILD}.txt
+make "$CONFIG" && make LLVM=1 LLVM_IAS=1 -j$(nproc --all) |& tee -a $HOME/build/build${BUILD}.txt
 BUILD_END=$(date +"%s")
 DIFF=$(($BUILD_END - $BUILD_START))
 }
