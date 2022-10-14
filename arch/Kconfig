@@ -541,6 +541,7 @@ config LD_GOLD
 config LD_LLD
 	bool "lld"
 	select TOOLS_SUPPORT_RELR
+	select THIN_ARCHIVES
 	help
 	  Use the alternative lld linker from LLVM.
 
