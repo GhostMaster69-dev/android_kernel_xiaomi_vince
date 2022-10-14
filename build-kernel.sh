@@ -7,7 +7,7 @@
 
 export DEVICE="VINCE"
 export CONFIG="vince-perf_defconfig"
-export TC_PATH="$HOME/clang-cosmic"
+export TC_PATH="$HOME/clang-android"
 export ZIP_DIR="$(pwd)/Flasher"
 export KERNEL_DIR=$(pwd)
 export KBUILD_BUILD_VERSION="1"
@@ -70,9 +70,9 @@ function error_sticker() {
 }
 function clone_tc() {
 [ -d ${TC_PATH} ] || mkdir ${TC_PATH}
-git clone -b master --depth=1 https://gitlab.com/GhostMaster69-dev/llvm-clang.git ${TC_PATH}
+git clone -b master --depth=1 https://gitlab.com/GhostMaster69-dev/android-clang.git ${TC_PATH}
 PATH="${TC_PATH}/bin:$PATH"
-export COMPILER=$(${TC_PATH}/bin/clang -v 2>&1 | grep ' version ' | sed 's/([^)]*)//')
+export COMPILER=$(${TC_PATH}/bin/clang -v 2>&1 | grep ' version ' | sed 's/([^)]*)[[:space:]]//' | sed 's/([^)]*)//')
 }
 
 # Make Kernel
