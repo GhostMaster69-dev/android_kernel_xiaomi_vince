@@ -43,8 +43,7 @@ tg_pushzip()
 {
 	FZIP=$ZIP_DIR/$ZIP
 	curl -F document=@"$FZIP"  "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument" \
-			-F chat_id=$CHANNEL_ID \
-			-F caption="Build Finished after $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds"
+			-F chat_id=$CHANNEL_ID
 }
 
 # Send Updates
@@ -127,6 +126,14 @@ elif [ "$stick" == "4" ];then
 	STICKER="CAACAgUAAxkBAAMUXveDrb4guQZSu7mP7ZptE4547PsAAugAA_scAAFXWZ-1a2wWKUcaBA"
 fi
 
+# Upload build logs file on telegram channel
+function tg_push_logs() {
+	LOG=$HOME/build/build${BUILD}.txt
+	curl -F document=@"$LOG"  "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument" \
+        -F chat_id=$CHANNEL_ID \
+        -F caption="Build Finished after $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds"
+}
+
 clone_tc
 
 COMMIT=$(git log --pretty=format:'"%h : %s"' -1)
@@ -157,5 +164,5 @@ if ! [ -a "$KERN_IMG" ]; then
 	tg_erlog && error_sticker
 	exit 1
 else
-	make_flashable
+	tg_push_logs && make_flashable
 fi
