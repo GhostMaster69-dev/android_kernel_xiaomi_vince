@@ -1087,7 +1087,7 @@ static void __init_discard_policy(struct f2fs_sb_info *sbi,
 		dpolicy->sync = false;
 		dpolicy->ordered = true;
 		if (utilization(sbi) > DEF_DISCARD_URGENT_UTIL) {
-			dpolicy->granularity = 1;
+			dpolicy->granularity = MIN_DISCARD_GRANULARITY;
 			dpolicy->max_interval = DEF_MIN_DISCARD_ISSUE_TIME;
 		}
 	} else if (discard_type == DPOLICY_FORCE) {
@@ -1100,7 +1100,7 @@ static void __init_discard_policy(struct f2fs_sb_info *sbi,
 	} else if (discard_type == DPOLICY_UMOUNT) {
 		dpolicy->io_aware = false;
 		/* we need to issue all to keep CP_TRIMMED_FLAG */
-		dpolicy->granularity = 1;
+		dpolicy->granularity = MIN_DISCARD_GRANULARITY;
 		dpolicy->timeout = true;
 	}
 }

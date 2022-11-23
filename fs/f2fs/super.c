@@ -3134,7 +3134,8 @@ static void f2fs_tuning_parameters(struct f2fs_sb_info *sbi)
 	/* adjust parameters according to the volume size */
 	if (MAIN_SEGS(sbi) <= SMALL_VOLUME_SEGMENTS) {
 		F2FS_OPTION(sbi).alloc_mode = ALLOC_MODE_REUSE;
-		SM_I(sbi)->dcc_info->discard_granularity = 1;
+		SM_I(sbi)->dcc_info->discard_granularity =
+						MIN_DISCARD_GRANULARITY;
 		SM_I(sbi)->ipu_policy = 1 << F2FS_IPU_FORCE;
 	}
 
