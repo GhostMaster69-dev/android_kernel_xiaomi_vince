@@ -39,7 +39,7 @@ LDFLAGS	+= --no-fix-cortex-a53-843419
   endif
 endif
 
-KBUILD_DEFCONFIG := defconfig
+KBUILD_DEFCONFIG := vince_defconfig
 
 # Check for binutils support for specific extensions
 lseinstr := $(call as-instr,.arch_extension lse,-DCONFIG_AS_LSE=1)
