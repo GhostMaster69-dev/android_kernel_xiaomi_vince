@@ -6,7 +6,6 @@
 #
 
 export DEVICE="VINCE"
-export CONFIG="vince-perf_defconfig"
 export TC_PATH="$HOME/clang"
 export ZIP_DIR="$(pwd)/Flasher"
 export KERNEL_DIR=$(pwd)
@@ -29,6 +28,10 @@ if [[ -z ${TELEGRAM_TOKEN} ]]; then
     TELEGRAM_TOKEN="${tg_token}"
 fi
 
+if [[ -z ${UNITRIX_CHANNEL_ID} ]]; then
+    UNITRIX_CHANNEL_ID=$CHANNEL_ID
+fi
+
 # Upload buildlog to group
 tg_erlog()
 {
@@ -43,7 +46,7 @@ tg_pushzip()
 {
 	FZIP=$ZIP_DIR/$ZIP
 	curl -F document=@"$FZIP"  "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument" \
-			-F chat_id=$CHANNEL_ID
+		   -F chat_id=$UNITRIX_CHANNEL_ID
 }
 
 # Send Updates
@@ -78,7 +81,8 @@ export COMPILER=$(${TC_PATH}/bin/clang -v 2>&1 | grep ' version ' | sed 's/([^)]
 build_kernel() {
 DATE=`date`
 BUILD_START=$(date +"%s")
-make "$CONFIG" && make LLVM=1 LLVM_IAS=1 -j$(nproc --all) |& tee -a $HOME/build/build${BUILD}.txt
+make LLVM=1 LLVM_IAS=1 defconfig
+make LLVM=1 LLVM_IAS=1 -j$(nproc --all) |& tee -a $HOME/build/build${BUILD}.txt
 BUILD_END=$(date +"%s")
 DIFF=$(($BUILD_END - $BUILD_START))
 }
@@ -134,13 +138,13 @@ function tg_push_logs() {
         -F caption="Build Finished after $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds"
 }
 
+# Start cloning toolchain
 clone_tc
 
 COMMIT=$(git log --pretty=format:'"%h : %s"' -1)
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 KERNEL_DIR=$(pwd)
 KERN_IMG=$KERNEL_DIR/out/arch/arm64/boot/Image.gz-dtb
-CONFIG_PATH=$KERNEL_DIR/arch/arm64/configs/$CONFIG
 VENDOR_MODULEDIR="$ZIP_DIR/modules/vendor/lib/modules"
 export KERN_VER=$(echo "$(make --no-print-directory kernelversion)")
 
