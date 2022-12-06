@@ -1,7 +1,8 @@
+ image: docker.io/31482281/ubuntu:rolling 
+
 # List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
  tasks:
-# Required and Additional Packages Ubuntu 20.04 and 21.04
-   - init: sudo apt-get update && sudo apt-get -o Dpkg::Options::='--force-confold' -fuy dist-upgrade && sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install bc bison flex # runs during prebuild
+   - name: Run script to start building kernel 
      command: bash build-kernel.sh
 
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/

@@ -1,13 +1,9 @@
 jobs:
   build:
-    machine:
-      image: ubuntu-2204:current
-    resource_class: large
+    docker:
+      - image: 31482281/ubuntu:rolling
     steps:
       - checkout
-      - run: 
-         name: Install missing required packages
-         command: sudo apt-get install -y --no-install-recommends flex
       - run:
          name: Run script to start building kernel
          command: bash build-kernel.sh
