@@ -1925,7 +1925,7 @@ static int wcnss_smd_tx(void *data, int len)
 
 	ret = smd_write_avail(penv->smd_ch);
 	if (ret < len) {
-		wcnss_log(ERR, "no space available for smd frame\n");
+		//wcnss_log(ERR, "no space available for smd frame\n");
 		return -ENOSPC;
 	}
 	ret = smd_write(penv->smd_ch, data, len);
