@@ -1822,10 +1822,12 @@ limPopulateOwnRateSet(tpAniSirGlobal pMac,
     else
          tempRateSet2.numRates = 0;
 
-    if ((tempRateSet.numRates + tempRateSet2.numRates) > 12)
+    if ((tempRateSet.numRates + tempRateSet2.numRates) >
+        SIR_MAC_MAX_NUMBER_OF_RATES)
     {
         //we are in big trouble
-        limLog(pMac, LOGP, FL("more than 12 rates in CFG"));
+        limLog(pMac, LOGP, FL("more than %d rates in CFG"),
+               SIR_MAC_MAX_NUMBER_OF_RATES);
         //panic
         goto error;
     }
@@ -1969,6 +1971,7 @@ limPopulatePeerRateSet(tpAniSirGlobal pMac,
     }
     if ((psessionEntry->dot11mode == WNI_CFG_DOT11_MODE_11G) ||
         (psessionEntry->dot11mode == WNI_CFG_DOT11_MODE_11A) ||
+        (psessionEntry->dot11mode == WNI_CFG_DOT11_MODE_11B) ||
         (psessionEntry->dot11mode == WNI_CFG_DOT11_MODE_11N))
     {
 
@@ -2177,9 +2180,11 @@ limPopulateMatchingRateSet(tpAniSirGlobal pMac,
     else
         tempRateSet2.numRates = 0;
 
-    if ((tempRateSet.numRates + tempRateSet2.numRates) > 12)
+    if ((tempRateSet.numRates + tempRateSet2.numRates) >
+        SIR_MAC_MAX_NUMBER_OF_RATES)
     {
-        PELOGE(limLog(pMac, LOGE, FL("more than 12 rates in CFG"));)
+        PELOGE(limLog(pMac, LOGE, FL("more than %d rates in CFG"),
+               SIR_MAC_MAX_NUMBER_OF_RATES);)
         goto error;
     }
 
@@ -2189,7 +2194,9 @@ limPopulateMatchingRateSet(tpAniSirGlobal pMac,
      * - sort and the rates into the pSta->rate array
      */
 
-    // Copy all rates in tempRateSet, there are 12 rates max
+    /* Copy all rates in tempRateSet,
+     * there are SIR_MAC_MAX_NUMBER_OF_RATES rates max
+     */
     for(i = 0; i < tempRateSet2.numRates; i++)
         tempRateSet.rate[i + tempRateSet.numRates] =
                                            tempRateSet2.rate[i];
@@ -2233,13 +2240,14 @@ limPopulateMatchingRateSet(tpAniSirGlobal pMac,
 
     if (pExtRateSet->numRates)
     {
-      if((tempRateSet.numRates + pExtRateSet->numRates) > 12 )
+      if((tempRateSet.numRates + pExtRateSet->numRates) >
+         SIR_MAC_MAX_NUMBER_OF_RATES )
       {
         limLog( pMac, LOG1,
-            "Sum of SUPPORTED and EXTENDED Rate Set (%1d) exceeds 12!",
-            tempRateSet.numRates + pExtRateSet->numRates );
+            "Sum of SUPPORTED and EXTENDED Rate Set (%1d) exceeds %d!",
+            tempRateSet.numRates + pExtRateSet->numRates, SIR_MAC_MAX_NUMBER_OF_RATES );
 
-        if( tempRateSet.numRates < 12 )
+        if( tempRateSet.numRates < SIR_MAC_MAX_NUMBER_OF_RATES )
         {
          int found = 0;
          int tail = tempRateSet.numRates;
@@ -2262,7 +2270,7 @@ limPopulateMatchingRateSet(tpAniSirGlobal pMac,
               tempRateSet.rate[tempRateSet.numRates++] =
                 pExtRateSet->rate[i];
 
-              if( tempRateSet.numRates >= 12 )
+              if( tempRateSet.numRates >= SIR_MAC_MAX_NUMBER_OF_RATES )
                 break;
             }
           }
@@ -3047,7 +3055,7 @@ limAddStaSelf(tpAniSirGlobal pMac,tANI_U16 staIdx, tANI_U8 updateSta, tpPESessio
         {
             pAddStaParams->greenFieldCapable = limGetHTCapability( pMac, eHT_GREENFIELD, psessionEntry);
             pAddStaParams->txChannelWidthSet =
-                  pMac->roam.configParam.channelBondingMode5GHz ^
+                  pMac->roam.configParam.channelBondingMode5GHz |
                   pMac->roam.configParam.channelBondingMode24GHz;
             // pAddStaParams->txChannelWidthSet = limGetHTCapability( pMac, eHT_SUPPORTED_CHANNEL_WIDTH_SET, psessionEntry);
             pAddStaParams->mimoPS             = limGetHTCapability( pMac, eHT_MIMO_POWER_SAVE, psessionEntry );

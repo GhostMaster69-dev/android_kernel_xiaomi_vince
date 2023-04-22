@@ -6236,6 +6236,9 @@ void csrAddRateBitmap(tANI_U8 rate, tANI_U16 *pRateBitmap)
         case SIR_MAC_RATE_54:
             rateBitmap |= SIR_MAC_RATE_54_BITMAP;
             break;
+        case SIR_MAC_RATE_SAE_H2E:
+            rateBitmap |= SIR_MAC_RATE_SAE_H2E_BITMAP;
+            break;
     }
     *pRateBitmap = rateBitmap;
 }
@@ -6283,6 +6286,9 @@ tANI_BOOLEAN csrIsRateAlreadyPresent(tANI_U8 rate, tANI_U16 rateBitmap)
             break;
         case SIR_MAC_RATE_54:
             rateBitmap &= SIR_MAC_RATE_54_BITMAP;
+            break;
+        case SIR_MAC_RATE_SAE_H2E:
+            rateBitmap &= SIR_MAC_RATE_SAE_H2E_BITMAP;
             break;
     }
     return !!rateBitmap;
@@ -6344,6 +6350,9 @@ tANI_U16 csrRatesMacPropToDot11( tANI_U16 Rate )
             break;
         case SIR_MAC_RATE_54:
             ConvertedRate = 108;
+            break;
+        case SIR_MAC_RATE_SAE_H2E:
+            ConvertedRate = 246;
             break;
 
         case SIR_MAC_RATE_72:
@@ -7000,6 +7009,11 @@ eHalStatus csrSetModifyProfileFields(tpAniSirGlobal pMac, tANI_U32 sessionId,
                                      tCsrRoamModifyProfileFields *pModifyProfileFields)
 {
    tCsrRoamSession *pSession = CSR_GET_SESSION( pMac, sessionId );
+
+   if (!pSession) {
+      smsLog(pMac, LOGE, FL("Session_id invalid %d"), sessionId);
+      return eHAL_STATUS_FAILURE;
+   }
 
    vos_mem_copy(&pSession->connectedProfile.modifyProfileFields,
                  pModifyProfileFields,
