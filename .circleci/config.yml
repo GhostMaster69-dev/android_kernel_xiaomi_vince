@@ -4,6 +4,8 @@ jobs:
       - image: 31482281/ubuntu:latest
     steps:
       - checkout
+      - setup_remote_docker:
+         docker_layer_caching: true
       - run:
          name: Run script to start building kernel
          command: bash build-kernel.sh
