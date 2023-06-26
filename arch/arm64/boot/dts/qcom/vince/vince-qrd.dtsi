@@ -531,19 +531,24 @@
 	};
 };
 
-&pmi8950_charger {
+&qpnp_smbcharger {
+	qcom,battery-data = <&qrd_batterydata>;
 	/delete-property/ qcom,chg-led-sw-controls;
 	/delete-property/ qcom,chg-led-support;
 	/delete-property/ qcom,external-typec;
 	/delete-property/ qcom,typec-psy-name;
 	qcom,thermal-mitigation = <3000 2500 2500 2500 1000 1000 0>;
+	status = "okay";
 };
 
-&pmi8950_fg {
+&qpnp_fg {
+	qcom,battery-data = <&qrd_batterydata>;
 	qcom,thermal-coefficients = [c8 86 c1 50 d3 37];
 	qcom,cold-bat-decidegc = <0>;
 	qcom,cool-bat-decidegc = <150>;
 	qcom,warm-bat-decidegc = <450>;
+	qcom,hot-bat-decidegc = <550>;
+	qcom,bad-battery-detection-enable;
 };
 
 &sdhc_2 {

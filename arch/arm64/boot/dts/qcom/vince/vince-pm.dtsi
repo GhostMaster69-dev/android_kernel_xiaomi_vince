@@ -256,31 +256,6 @@
 				status = "okay";
 			};
 		};
-		pmi8950_charger: qcom,qpnp-smbcharger {
-			qcom,iterm-ma = <200>;
-			qcom,float-voltage-mv = <4380>;
-			qcom,resume-delta-mv = <50>;
-			/delete-property/ qcom,rparasitic-uohm;
-			qcom,rparasitics-uohm = <100000>;
-			qcom,charge-unknown-battery;
-			/delete-property/ qcom,parallel-usb-min-current-ma;
-			/delete-property/ qcom,parallel-usb-9v-min-current-ma;
-			/delete-property/ qcom,parallel-allowed-lowering-ma;
-			qcom,override-usb-current;
-			qcom,fastchg-current-comp = <1200>;
-			qcom,float-voltage-comp = <15>;
-			/delete-property/ qcom,autoadjust-vfloat;
-		};
-		pmi8950_fg: qcom,fg {
-			/delete-property/ qcom,resume-soc;
-			qcom,resume-soc-raw = <254>;
-			qcom,fg-iterm-ma = <300>;
-			qcom,fg-chg-iterm-ma = <200>;
-			qcom,fg-cutoff-voltage-mv = <3400>;
-			qcom,hold-soc-while-full;
-			qcom,fg-cc-cv-threshold-mv =<4370>;
-			qcom,vbat-estimate-diff-mv = <200>;
-		};
 	};
 	qcom,pmi8950@3 {
 		labibb: qpnp-labibb-regulator {
