@@ -281,7 +281,7 @@ int32_t CTP_I2C_READ(struct i2c_client *client, uint16_t address, uint8_t *buf, 
 	}
 
 	if (unlikely(retries == 5)) {
-		NVT_ERR("error, ret=%d\n", ret);
+		NVT_LOG("error, ret=%d\n", ret);
 		ret = -EIO;
 	}
 
@@ -295,7 +295,7 @@ int32_t CTP_I2C_READ_DUMMY(struct i2c_client *client, uint16_t address)
 
 	ret = CTP_I2C_READ(client, address, buf, 2);
 	if (ret < 0)
-		NVT_ERR("CTP_I2C_READ_DUMMY failed.(%d)\n", ret);
+		NVT_LOG("CTP_I2C_READ_DUMMY failed.(%d)\n", ret);
 
 	return ret;
 }
@@ -318,7 +318,7 @@ int32_t CTP_I2C_WRITE(struct i2c_client *client, uint16_t address, uint8_t *buf,
 	}
 
 	if (unlikely(retries == 5)) {
-		NVT_ERR("error, ret=%d\n", ret);
+		NVT_LOG("error, ret=%d\n", ret);
 		ret = -EIO;
 	}
 
