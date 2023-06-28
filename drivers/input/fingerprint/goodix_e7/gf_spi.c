@@ -256,7 +256,7 @@ static long gf_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
 	gf_nav_event_t nav_event = GF_NAV_NONE;
 #endif
 
-     pr_info("gf_ioctl cmd:0x%x \n", cmd);
+     pr_debug("gf_ioctl cmd:0x%x \n", cmd);
 
 
 
@@ -400,19 +400,19 @@ static long gf_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
         }
         break;
     case GF_IOC_ENABLE_SPI_CLK:
-        pr_info("%s GF_IOC_ENABLE_SPI_CLK. \n", __func__);
+        pr_debug("%s GF_IOC_ENABLE_SPI_CLK. \n", __func__);
 #ifdef AP_CONTROL_CLK
         gfspi_ioctl_clk_enable(gf_dev);
 #else
-        pr_info("Doesn't support control clock.\n");
+        pr_debug("Doesn't support control clock.\n");
 #endif
         break;
     case GF_IOC_DISABLE_SPI_CLK:
-        pr_info("%s GF_IOC_DISABLE_SPI_CLK. \n", __func__);
+        pr_debug("%s GF_IOC_DISABLE_SPI_CLK. \n", __func__);
 #ifdef AP_CONTROL_CLK
         gfspi_ioctl_clk_disable(gf_dev);
 #else
-        pr_info("Doesn't support control clock.\n");
+        pr_debug("Doesn't support control clock.\n");
 #endif
         break;
     case GF_IOC_ENABLE_POWER:
