@@ -537,7 +537,7 @@
 	/delete-property/ qcom,chg-led-support;
 	/delete-property/ qcom,external-typec;
 	/delete-property/ qcom,typec-psy-name;
-	qcom,thermal-mitigation = <3000 2500 2500 2500 1000 1000 0>;
+	qcom,thermal-mitigation = <2500 2000 1500 1000 600 300 0>;
 	status = "okay";
 };
 
