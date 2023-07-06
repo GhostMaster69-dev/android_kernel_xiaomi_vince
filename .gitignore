@@ -121,6 +121,3 @@ kernel/configs/android-*.cfg
 
 # Object directory
 out/
-
-# Ignore Flasher Directory
-Flasher/

@@ -7,12 +7,14 @@
 
 export DEVICE="VINCE"
 export TC_PATH="$HOME/clang"
-export ZIP_DIR="$(pwd)/Flasher"
+export ZIP_DIR="$(pwd)/AnyKernel3"
 export KERNEL_DIR=$(pwd)
 export KBUILD_BUILD_VERSION="1"
 export KBUILD_BUILD_USER="Unitrix-Kernel"
 export KBUILD_BUILD_HOST="Cosmic-Horizon"
 export KBUILD_BUILD_TIMESTAMP="$(TZ='Asia/Kolkata' date)"
+export PLATFORM_VERSION="13"
+export BUILD_ID="TQ3A.230705.001"
 
 # Ask Telegram Channel/Chat ID
 if [[ -z ${CHANNEL_ID} ]]; then
@@ -75,6 +77,12 @@ function clone_tc() {
 git clone --depth=1 https://gitlab.com/GhostMaster69-dev/cosmic-clang.git ${TC_PATH}
 PATH="${TC_PATH}/bin:$PATH"
 export COMPILER=$(${TC_PATH}/bin/clang -v 2>&1 | grep ' version ' | sed 's/([^)]*)[[:space:]]//' | sed 's/([^)]*)//')
+}
+
+function clone_anykernel3() {
+	if ! [ -d $ZIP_DIR ]; then
+		git clone -b master https://github.com/AOSP-Silicon/AnyKernel3 $ZIP_DIR
+	fi
 }
 
 # Make Kernel
@@ -161,6 +169,7 @@ on Branch    :- <b>$BRANCH</b>
 Commit       :- <b>$COMMIT</b>\n")"
 
 build_kernel
+clone_anykernel3
 
 # Check if kernel img is there or not and make flashable accordingly
 
