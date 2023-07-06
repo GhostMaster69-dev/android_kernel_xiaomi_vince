@@ -121,3 +121,6 @@ kernel/configs/android-*.cfg
 
 # Object directory
 out/
+
+# KSU
+KernelSU/

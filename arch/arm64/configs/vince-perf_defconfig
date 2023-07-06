@@ -4379,6 +4379,11 @@ CONFIG_SENSORS_SSC=y
 # CONFIG_TEE is not set
 
 #
+# KernelSU
+#
+# CONFIG_KSU is not set
+
+#
 # Firmware Drivers
 #
 CONFIG_ARM_PSCI_FW=y
