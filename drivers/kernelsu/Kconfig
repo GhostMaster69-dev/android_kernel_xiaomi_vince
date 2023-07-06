@@ -3,11 +3,13 @@ menu "KernelSU"
 config KSU
 	tristate "KernelSU function support"
 	select OVERLAY_FS
-	select KPROBES
-	select KPROBE_EVENTS
 	default n
 	help
 	Enable kernel-level root privileges on Android System.
+
+config HAVE_KSU_WITHOUT_KPROBES
+	depends on KSU && !KPROBES
+	def_bool y
 
 config KSU_DEBUG
 	bool "KernelSU debug mode"
