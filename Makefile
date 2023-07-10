@@ -354,26 +354,20 @@ include scripts/Kbuild.include
 
 # Make variables (CC, etc...)
 CPP		= $(CC) -E
-LDLLD           = ld.lld
-LLVMNM          = llvm-nm
-LLVMOBJCOPY     = llvm-objcopy
 ifneq ($(LLVM),)
 CC		= clang
 LD		= ld.lld
+AR              = llvm-ar
 AS              = llvm-as
 NM		= llvm-nm
 OBJCOPY		= llvm-objcopy
+OBJDUMP		= llvm-objdump
 READELF		= llvm-readelf
 OBJSIZE		= llvm-size
 STRIP		= llvm-strip
-ifndef CONFIG_LTO_CLANG
-AR		= llvm-ar
-OBJDUMP		= llvm-objdump
-endif
 else
 CC		= $(CROSS_COMPILE)gcc
 LD		= $(CROSS_COMPILE)ld
-LDGOLD          = $(CROSS_COMPILE)ld.gold
 AR		= $(CROSS_COMPILE)ar
 AS              = $(CROSS_COMPILE)as
 NM		= $(CROSS_COMPILE)nm
@@ -687,21 +681,15 @@ export CFLAGS_GCOV CFLAGS_KCOV
 
 # Make toolchain changes before including arch/$(SRCARCH)/Makefile to ensure
 # ar/cc/ld-* macros return correct values.
-ifdef CONFIG_LD_GOLD
-LDFINAL_vmlinux := $(LD)
-LD		:= $(LDGOLD)
-endif
-ifdef CONFIG_LD_LLD
-LD		:= $(LDLLD)
-endif
-
 ifdef CONFIG_LTO_CLANG
 # use GNU gold with LLVMgold or LLD for LTO linking, and LD for vmlinux_link
-ifeq ($(ld-name),gold)
+ifneq ($(ld-name),lld)
+LDFINAL_vmlinux := $(LD)
+LD		:= $(CROSS_COMPILE)ld.gold
 LDFLAGS		+= -plugin LLVMgold.so
-endif
 LDFLAGS		+= -plugin-opt=-function-sections
 LDFLAGS		+= -plugin-opt=-data-sections
+endif
 # use llvm-ar for building symbol tables from IR files, and llvm-dis instead
 # of objdump for processing symbol versions and exports
 LLVM_AR		:= llvm-ar
@@ -1049,8 +1037,8 @@ endif
 
 ifeq ($(CONFIG_RELR),y)
 LDFLAGS_vmlinux	+= --pack-dyn-relocs=relr
-OBJCOPY	:= $(LLVMOBJCOPY)
-NM	:= $(LLVMNM)
+OBJCOPY	:= llvm-objcopy
+NM	:= llvm-nm
 export OBJCOPY NM
 endif
 
