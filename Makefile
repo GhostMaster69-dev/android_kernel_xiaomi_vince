@@ -4,6 +4,11 @@ SUBLEVEL = 337
 EXTRAVERSION =
 NAME = Roaring Lionus
 
+ifeq ($(BUILD_ID),)
+BUILD_ID=$(shell if [ -f ./../../../build/core/build_id.mk ]; then grep -i 'BUILD_ID=' ./../../../build/core/build_id.mk | cut -d '=' -f 2-; else wget -qO - https://raw.githubusercontent.com/Octavi-Staging/android_build/thirteen/core/build_id.mk | grep -i 'BUILD_ID=' | cut -d '=' -f 2-; fi)
+export BUILD_ID
+endif
+
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
 # More info can be located in ./README
@@ -1325,7 +1330,11 @@ uts_len := 64
 ifneq (,$(BUILD_NUMBER))
 	UTS_RELEASE=$(KERNELRELEASE)-ab$(BUILD_NUMBER)
 else
+ifneq ($(BUILD_ID),)
+	UTS_RELEASE=$(KERNELRELEASE)-$(BUILD_ID)
+else
 	UTS_RELEASE=$(KERNELRELEASE)
+endif
 endif
 define filechk_utsrelease.h
 	if [ `echo -n "$(UTS_RELEASE)" | wc -c ` -gt $(uts_len) ]; then \
