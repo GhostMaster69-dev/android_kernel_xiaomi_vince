@@ -1,9 +1,11 @@
- image: 31482281/ubuntu:latest
+ image: gitpod/workspace-base:latest
 
 # List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
  tasks:
+   - name: Install deps
+     command: sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -y bc bison build-essential clang cpio curl flex gcc git libbz2-dev libelf-dev liblz4-dev liblz4-tool libssl-dev libzstd-dev lld lz4 nano tzdata vim wget zip zstd
    - name: Run script to start building kernel 
-     command: bash build-kernel.sh
+     command: ./kbuild.sh
 
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
  ports:
