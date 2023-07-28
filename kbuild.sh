@@ -7,14 +7,11 @@
 
 export DEVICE="VINCE"
 export TC_PATH="$HOME/clang"
-export ZIP_DIR="$(pwd)/AnyKernel3"
+export ZIP_DIR="$HOME/AnyKernel3"
 export KERNEL_DIR=$(pwd)
-export KBUILD_BUILD_VERSION="1"
-export KBUILD_BUILD_USER="Unitrix-Kernel"
-export KBUILD_BUILD_HOST="Cosmic-Horizon"
-export KBUILD_BUILD_TIMESTAMP="$(TZ='Asia/Kolkata' date)"
-export PLATFORM_VERSION="13"
-export BUILD_ID="TQ3A.230705.001"
+export KBUILD_BUILD_USER="venom"
+export KBUILD_BUILD_HOST="codespace"
+export TZ="Asia/Kolkata"
 
 # Ask Telegram Channel/Chat ID
 if [[ -z ${CHANNEL_ID} ]]; then
@@ -73,8 +70,9 @@ function error_sticker() {
         -d chat_id=$CHANNEL_ID
 }
 function clone_tc() {
-[ -d ${TC_PATH} ] || mkdir ${TC_PATH}
-git clone --depth=1 https://gitlab.com/GhostMaster69-dev/cosmic-clang.git ${TC_PATH}
+if ! [ -d ${TC_PATH} ]; then
+git clone --depth=1 -b master --single-branch https://gitlab.com/GhostMaster69-dev/cosmic-clang.git ${TC_PATH}
+fi
 PATH="${TC_PATH}/bin:$PATH"
 export COMPILER=$(${TC_PATH}/bin/clang -v 2>&1 | grep ' version ' | sed 's/([^)]*)[[:space:]]//' | sed 's/([^)]*)//')
 }
