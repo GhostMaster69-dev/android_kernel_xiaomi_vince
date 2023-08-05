@@ -4,6 +4,9 @@ SUBLEVEL = 337
 EXTRAVERSION =
 NAME = Roaring Lionus
 
+SHELL=/bin/bash
+export SHELL
+
 ifeq ($(BUILD_ID),)
 BUILD_ID=$(shell if [ -f ./../../../build/core/build_id.mk ]; then grep -i 'BUILD_ID=' ./../../../build/core/build_id.mk | cut -d '=' -f 2-; else wget -qO - https://raw.githubusercontent.com/Octavi-Staging/android_build/thirteen/core/build_id.mk | grep -i 'BUILD_ID=' | cut -d '=' -f 2-; fi)
 export BUILD_ID
