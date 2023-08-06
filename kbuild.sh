@@ -45,7 +45,8 @@ tg_pushzip()
 {
 	FZIP=$ZIP_DIR/$ZIP
 	curl -F document=@"$FZIP"  "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument" \
-		   -F chat_id=$UNITRIX_CHANNEL_ID
+		   -F chat_id=$UNITRIX_CHANNEL_ID \
+		   -F caption="SHA1: $SHA1"
 }
 
 # Send Updates
@@ -106,6 +107,7 @@ else
 	make stable &>/dev/null
 fi
 ZIP=$(echo *.zip)
+SHA1=$(cat *.zip.sha1 | cut -c 1-40)
 tg_pushzip
 
 }
