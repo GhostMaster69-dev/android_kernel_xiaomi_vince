@@ -36,7 +36,7 @@ function do_older()
 {
    if ! [ -d $KERNELSU ]; then
        git clone https://github.com/tiann/KernelSU.git $KERNELSU > /dev/null 2>&1
-git -C $KERNELSU checkout $action > /dev/null 2>&1
+       git -C $KERNELSU checkout $action > /dev/null 2>&1
    fi
 }
 
@@ -46,5 +46,8 @@ if [ $action = "stable" ] || [ $action = "devel" ]; then
 do_$action
 else
 do_older
+fi
+if [ $(git -C $KERNELSU describe --abbrev=0 --tags) = "v0.6.6" ]; then
+    git -C $KERNELSU cherry-pick --no-gpg-sign 0b1bab5b01d346ed4ad1b00d4ba974e27a20f5fb
 fi
 
